@@ -473,37 +473,44 @@ with col1:
         for _, project in high_risk_projects.head(3).iterrows():
             status_class = f"status-{project['status'].replace(' ', '').lower()}"
 
-            st.markdown(f"""
-            <div class="project-card {status_class}">
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
-                    <div>
-                        <strong style="color: #e74c3c;">⚠️ {project['project_id']}</strong>
-                        <div style="font-size: 16px; font-weight: bold;">{project['project_name']}</div>
-                    </div>
-                    <span class="risk-high">高风险</span>
-                </div>
+            import streamlit as st
 
-                <div style="font-size: 12px; color: #666; margin-bottom: 5px;">
-                    {project['industry']} · {project['equipment_type']} · {project['project_manager']}
-                </div>
+            # 创建项目卡片
+            with st.container():
+                # 使用columns布局
+                col1, col2 = st.columns([4, 1])
 
-                <div style="margin: 10px 0;">
-                    <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 5px;">
-                        <span>项目进度</span>
-                        <span>{project['progress']:.0f}%</span>
-                    </div>
-                    <div class="progress-container">
-                        <div class="progress-bar" style="width: {project['progress']}%; background: {data['industry_colors'].get(project['industry'], '#3498db')};"></div>
-                    </div>
-                </div>
+                with col1:
+                    st.markdown(f"**⚠️ {project['project_id']} - {project['project_name']}**")
+                    st.caption(f"{project['industry']} · {project['equipment_type']} · {project['project_manager']}")
 
-                <div style="display: flex; justify-content: space-between; font-size: 12px;">
-                    <span>¥{project['contract_value']:,.0f}</span>
-                    <span class="difficulty-{project['difficulty'].lower()}">难度: {project['difficulty']}</span>
-                    <span>延期: {project['delay_days']}天</span>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+                with col2:
+                    st.error("高风险")
+
+                # 进度条
+                st.write(f"**项目进度**: {project['progress']:.0f}%")
+                st.progress(project['progress'] / 100)
+
+                # 底部信息
+                cols = st.columns(3)
+                with cols[0]:
+                    st.metric("合同额", f"¥{project['contract_value']:,.0f}", delta=None)
+                with cols[1]:
+                    difficulty = project['difficulty']
+                    if difficulty == "高":
+                        st.error(f"难度: {difficulty}")
+                    elif difficulty == "中":
+                        st.warning(f"难度: {difficulty}")
+                    else:
+                        st.success(f"难度: {difficulty}")
+                with cols[2]:
+                    delay = project['delay_days']
+                    if delay > 0:
+                        st.error(f"延期: {delay}天")
+                    else:
+                        st.success("按时")
+
+                st.divider()
     else:
         st.info("暂无高风险项目")
 
