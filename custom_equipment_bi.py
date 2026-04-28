@@ -482,7 +482,8 @@ with col1:
                     with title_cols[0]:
                         st.markdown(f"**⚠️ {project['project_id']} - {project['project_name']}**")
                     with title_cols[1]:
-                        st.error("高风险", help="高风险项目需重点监控")
+                        # 修复：移除 help 参数
+                        st.error("高风险")
 
                     # 项目信息
                     st.caption(f"{project['industry']} · {project['equipment_type']} · {project['project_manager']}")
@@ -490,6 +491,7 @@ with col1:
                     # 进度条 - 更紧凑
                     progress_cols = st.columns([1, 4])
                     with progress_cols[0]:
+                        # 修复：移除 help 参数
                         st.metric("进度", f"{project['progress']:.0f}%", delta=None)
                     with progress_cols[1]:
                         st.progress(project['progress'] / 100, text="")
@@ -497,21 +499,23 @@ with col1:
                     # 底部指标 - 紧凑排列
                     metric_cols = st.columns(3)
                     with metric_cols[0]:
-                        st.metric("合同额", f"¥{project['contract_value']:,.0f}", delta=None, help="项目合同金额")
+                        # 修复：移除 help 参数
+                        st.metric("合同额", f"¥{project['contract_value']:,.0f}", delta=None)
                     with metric_cols[1]:
                         difficulty = project['difficulty']
                         if difficulty == "高":
-                            st.metric("难度", "高", delta=None, help="项目技术难度")
+                            # 修复：移除 help 参数
+                            st.metric("难度", "高", delta=None)
                         elif difficulty == "中":
-                            st.metric("难度", "中", delta=None, help="项目技术难度")
+                            st.metric("难度", "中", delta=None)
                         else:
-                            st.metric("难度", "低", delta=None, help="项目技术难度")
+                            st.metric("难度", "低", delta=None)
                     with metric_cols[2]:
                         delay = project['delay_days']
                         if delay > 0:
-                            st.metric("延期", f"{delay}天", delta=None, help="项目延期天数")
+                            st.metric("延期", f"{delay}天", delta=None)
                         else:
-                            st.metric("状态", "按时", delta=None, help="项目交付状态")
+                            st.metric("状态", "按时", delta=None)
 
                     # 如果不是最后一个项目，添加分隔线
                     if idx < min(2, len(high_risk_projects.head(3)) - 1):
@@ -542,7 +546,8 @@ with col1:
         margin=dict(l=0, r=0, t=0, b=0, pad=0)  # 减少边距
     )
 
-    st.plotly_chart(fig_equipment, use_container_width=True, config={'displayModeBar': False})
+    # 修复：将 use_container_width=True 改为 width='stretch'
+    st.plotly_chart(fig_equipment, width='stretch', config={'displayModeBar': False})
 
 with col2:
     st.markdown("### 👥 资源负荷分析")
@@ -574,7 +579,8 @@ with col2:
         margin=dict(l=0, r=0, t=0, b=0, pad=0)  # 减少边距
     )
 
-    st.plotly_chart(fig_resources, use_container_width=True, config={'displayModeBar': False})
+    # 修复：将 use_container_width=True 改为 width='stretch'
+    st.plotly_chart(fig_resources, width='stretch', config={'displayModeBar': False})
 
     # 问题追踪 - 使用Streamlit组件替代HTML
     st.markdown("##### 🔧 问题追踪")
