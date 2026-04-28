@@ -470,51 +470,56 @@ with col1:
     high_risk_projects = df_projects[df_projects['risk_level'] == '高'].sort_values('contract_value', ascending=False)
 
     if not high_risk_projects.empty:
-        for _, project in high_risk_projects.head(3).iterrows():
-            status_class = f"status-{project['status'].replace(' ', '').lower()}"
+        # 使用紧凑的项目卡片容器
+        projects_container = st.container()
 
-            import streamlit as st
+        with projects_container:
+            for idx, (_, project) in enumerate(high_risk_projects.head(3).iterrows()):
+                # 使用紧凑的卡片布局
+                with st.container(border=True):  # 使用border参数创建有边界的容器
+                    # 顶部：项目ID和名称
+                    title_cols = st.columns([4, 1])
+                    with title_cols[0]:
+                        st.markdown(f"**⚠️ {project['project_id']} - {project['project_name']}**")
+                    with title_cols[1]:
+                        st.error("高风险", help="高风险项目需重点监控")
 
-            # 创建项目卡片
-            with st.container():
-                # 使用columns布局
-                col1, col2 = st.columns([4, 1])
-
-                with col1:
-                    st.markdown(f"**⚠️ {project['project_id']} - {project['project_name']}**")
+                    # 项目信息
                     st.caption(f"{project['industry']} · {project['equipment_type']} · {project['project_manager']}")
 
-                with col2:
-                    st.error("高风险")
+                    # 进度条 - 更紧凑
+                    progress_cols = st.columns([1, 4])
+                    with progress_cols[0]:
+                        st.metric("进度", f"{project['progress']:.0f}%", delta=None)
+                    with progress_cols[1]:
+                        st.progress(project['progress'] / 100, text="")
 
-                # 进度条
-                st.write(f"**项目进度**: {project['progress']:.0f}%")
-                st.progress(project['progress'] / 100)
+                    # 底部指标 - 紧凑排列
+                    metric_cols = st.columns(3)
+                    with metric_cols[0]:
+                        st.metric("合同额", f"¥{project['contract_value']:,.0f}", delta=None, help="项目合同金额")
+                    with metric_cols[1]:
+                        difficulty = project['difficulty']
+                        if difficulty == "高":
+                            st.metric("难度", "高", delta=None, help="项目技术难度")
+                        elif difficulty == "中":
+                            st.metric("难度", "中", delta=None, help="项目技术难度")
+                        else:
+                            st.metric("难度", "低", delta=None, help="项目技术难度")
+                    with metric_cols[2]:
+                        delay = project['delay_days']
+                        if delay > 0:
+                            st.metric("延期", f"{delay}天", delta=None, help="项目延期天数")
+                        else:
+                            st.metric("状态", "按时", delta=None, help="项目交付状态")
 
-                # 底部信息
-                cols = st.columns(3)
-                with cols[0]:
-                    st.metric("合同额", f"¥{project['contract_value']:,.0f}", delta=None)
-                with cols[1]:
-                    difficulty = project['difficulty']
-                    if difficulty == "高":
-                        st.error(f"难度: {difficulty}")
-                    elif difficulty == "中":
-                        st.warning(f"难度: {difficulty}")
-                    else:
-                        st.success(f"难度: {difficulty}")
-                with cols[2]:
-                    delay = project['delay_days']
-                    if delay > 0:
-                        st.error(f"延期: {delay}天")
-                    else:
-                        st.success("按时")
-
-                st.divider()
+                    # 如果不是最后一个项目，添加分隔线
+                    if idx < min(2, len(high_risk_projects.head(3)) - 1):
+                        st.divider()
     else:
         st.info("暂无高风险项目")
 
-    # 设备类型分布
+    # 设备类型分布 - 调整高度，更紧凑
     st.markdown("##### ⚙️ 设备类型分布")
     equipment_dist = df_projects['equipment_type'].value_counts().reset_index()
     equipment_dist.columns = ['equipment_type', 'count']
@@ -529,19 +534,20 @@ with col1:
     )
 
     fig_equipment.update_layout(
-        height=250,
+        height=200,  # 减少高度
         xaxis_title="项目数量",
         yaxis_title="",
         plot_bgcolor='white',
-        showlegend=False
+        showlegend=False,
+        margin=dict(l=0, r=0, t=0, b=0, pad=0)  # 减少边距
     )
 
-    st.plotly_chart(fig_equipment, use_container_width=True)
+    st.plotly_chart(fig_equipment, use_container_width=True, config={'displayModeBar': False})
 
 with col2:
     st.markdown("### 👥 资源负荷分析")
 
-    # 资源利用率
+    # 资源利用率图表 - 调整高度
     fig_resources = px.bar(
         data['df_resources'],
         x='resource',
@@ -553,41 +559,55 @@ with col2:
     )
 
     fig_resources.update_layout(
-        height=300,
+        height=220,  # 减少高度
         xaxis_title="",
         yaxis_title="资源利用率",
         yaxis_tickformat=',.0%',
         plot_bgcolor='white',
-        legend_title="关键程度"
+        legend=dict(
+            orientation="h",
+            yanchor="bottom",
+            y=1.02,
+            xanchor="right",
+            x=1
+        ),
+        margin=dict(l=0, r=0, t=0, b=0, pad=0)  # 减少边距
     )
 
-    st.plotly_chart(fig_resources, use_container_width=True)
+    st.plotly_chart(fig_resources, use_container_width=True, config={'displayModeBar': False})
 
-    # 问题追踪
+    # 问题追踪 - 使用Streamlit组件替代HTML
     st.markdown("##### 🔧 问题追踪")
 
     active_issues = data['df_issues'][data['df_issues']['status'] == '处理中']
 
     if not active_issues.empty:
-        for _, issue in active_issues.head(3).iterrows():
-            severity_color = {'高': '#e74c3c', '中': '#f39c12', '低': '#2ecc71'}[issue['severity']]
+        issues_container = st.container()
 
-            st.markdown(f"""
-            <div style="background: #f8f9fa; padding: 12px; border-radius: 6px; margin: 8px 0; border-left: 4px solid {severity_color};">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <strong>{issue['issue_id']}</strong>
-                        <div style="font-size: 12px; color: #666;">{issue['issue_type']} · {issue['project_id']}</div>
-                    </div>
-                    <span style="background: {severity_color}; color: white; padding: 2px 8px; border-radius: 10px; font-size: 11px;">
-                        {issue['severity']}级
-                    </span>
-                </div>
-                <div style="font-size: 11px; color: #999; margin-top: 5px;">
-                    创建: {issue['create_date'].strftime('%m-%d')} · 处理中
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
+        with issues_container:
+            for idx, (_, issue) in enumerate(active_issues.head(3).iterrows()):
+                # 使用Streamlit组件创建问题卡片
+                with st.container(border=True):
+                    # 问题标题和严重程度
+                    issue_cols = st.columns([3, 1])
+                    with issue_cols[0]:
+                        st.markdown(f"**{issue['issue_id']}**")
+                        st.caption(f"{issue['issue_type']} · {issue['project_id']}")
+                    with issue_cols[1]:
+                        severity = issue['severity']
+                        if severity == '高':
+                            st.error(f"{severity}级")
+                        elif severity == '中':
+                            st.warning(f"{severity}级")
+                        else:
+                            st.success(f"{severity}级")
+
+                    # 创建时间
+                    st.caption(f"创建: {issue['create_date'].strftime('%m-%d')} · 处理中")
+
+                    # 如果不是最后一个问题，添加分隔线
+                    if idx < min(2, len(active_issues.head(3)) - 1):
+                        st.divider()
     else:
         st.success("✅ 暂无待处理问题")
 
