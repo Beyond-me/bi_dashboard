@@ -17,11 +17,12 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # 页面配置
+# 修改页面配置
 st.set_page_config(
     page_title="拓威斯自动化 - 智能管理驾驶舱",
     page_icon="⚙️",
     layout="wide",
-    initial_sidebar_state="expanded"  # 保持默认展开
+    initial_sidebar_state="auto"  # 改为 auto
 )
 
 # 在页面配置后立即添加
@@ -301,6 +302,9 @@ st.markdown("""
 
 # 侧边栏控制面板
 with st.sidebar:
+    # 确保有内容
+    st.write(" ")  # 空内容确保渲染
+
     st.markdown("### 🎛️ 控制面板")
 
     # 区域筛选
