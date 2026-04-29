@@ -24,6 +24,35 @@ st.set_page_config(
     initial_sidebar_state="expanded"  # 保持默认展开
 )
 
+# 在页面配置后立即添加
+st.markdown("""
+<script>
+// 强制显示侧边栏
+document.addEventListener('DOMContentLoaded', function() {
+    const sidebar = document.querySelector('[data-testid="stSidebar"]');
+    if (sidebar) {
+        sidebar.style.display = 'block';
+        sidebar.style.visibility = 'visible';
+        sidebar.style.opacity = '1';
+
+        // 如果是折叠状态，强制展开
+        const sidebarContent = sidebar.querySelector('.st-emotion-cache-6qob1r');
+        if (sidebarContent) {
+            sidebarContent.style.transform = 'translateX(0)';
+        }
+    }
+});
+
+// 监控侧边栏状态
+setInterval(() => {
+    const sidebar = document.querySelector('[data-testid="stSidebar"]');
+    if (sidebar && sidebar.style.display === 'none') {
+        sidebar.style.display = 'block';
+    }
+}, 1000);
+</script>
+""", unsafe_allow_html=True)
+
 # 隐藏streamlit默认样式
 hide_streamlit_style = """
 <style>
