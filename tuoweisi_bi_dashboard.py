@@ -56,8 +56,8 @@ st.markdown("""
 
 # 使用 Streamlit 原生按钮作为触发器（绝对不会出现乱码）
 # 注意：这里我们用透明按钮占个位，真正的按钮已经被上面的 CSS 强制移到了右上角
-if st.button("☰", key="hidden_trigger"):
-    pass
+# if st.button("☰", key="hidden_trigger"):
+#     pass
 
 # 页面配置
 st.set_page_config(
