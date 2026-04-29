@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 # @Time    : 2026/4/29 14:41
 # @Author  : lihaizhen
-# @File    : tuoweisi_bi_dashboard.py
+# @File    : tuoweisi_bi_dashboard_fixed.py
 # @Software: PyCharm
-# @Desc    : 拓威斯自动化BI看板 - 消除侧边栏闪烁优化版
+# @Desc    : 拓威斯自动化BI看板 - 侧边栏稳定版
 
 import streamlit as st
 import pandas as pd
@@ -15,185 +15,23 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# ========== 1. 核心优化：在最开头注入CSS隐藏默认侧边栏按钮 ==========
-# 这段代码必须放在任何其他Streamlit调用之前
-st.markdown("""
-<style>
-    /* 立即隐藏所有默认的侧边栏控制元素 */
-    [data-testid="collapsedControl"],
-    [data-testid="stSidebarCollapsedControl"],
-    .st-emotion-cache-1p1n0z3,
-    .st-emotion-cache-1qg05tj {
-        display: none !important;
-        opacity: 0 !important;
-        visibility: hidden !important;
-        width: 0 !important;
-        height: 0 !important;
-        pointer-events: none !important;
-    }
-
-    /* 预隐藏侧边栏，等待我们的自定义控制 */
-    section[data-testid="stSidebar"] {
-        visibility: hidden !important;
-        opacity: 0 !important;
-        transition: none !important;
-    }
-
-    /* 我们的自定义控制按钮容器 - 初始隐藏 */
-    #custom-sidebar-control {
-        display: none;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-# ========== 2. 页面配置 ==========
+# ========== 1. 页面配置 ==========
+# 关键修改：完全移除 initial_sidebar_state 参数，让 Streamlit 使用默认行为
 st.set_page_config(
     page_title="拓威斯自动化 - 智能管理驾驶舱",
     page_icon="⚙️",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    layout="wide"
+    # 注意：这里不设置 initial_sidebar_state
 )
 
-# ========== 3. 延迟加载的自定义控制逻辑 ==========
-# 在页面配置后立即执行，但延迟加载
-st.markdown("""
-<script>
-// 延迟执行，确保页面DOM完全加载
-setTimeout(function() {
-    // 1. 完全移除所有默认的侧边栏控制元素
-    const removeDefaultControls = () => {
-        const selectors = [
-            '[data-testid="collapsedControl"]',
-            '[data-testid="stSidebarCollapsedControl"]',
-            '.st-emotion-cache-1p1n0z3',
-            '.st-emotion-cache-1qg05tj',
-            '.stSidebarToggle'
-        ];
-
-        selectors.forEach(selector => {
-            const elements = document.querySelectorAll(selector);
-            elements.forEach(el => {
-                if (el && el.parentNode) {
-                    el.parentNode.removeChild(el);
-                }
-            });
-        });
-    };
-
-    // 2. 创建并显示我们的自定义控制按钮
-    const createCustomControl = () => {
-        const controlBtn = document.createElement('div');
-        controlBtn.id = 'custom-sidebar-control';
-        controlBtn.innerHTML = `
-            <style>
-                #custom-sidebar-toggle {
-                    position: fixed;
-                    top: 10px;
-                    right: 10px;
-                    z-index: 9999;
-                    background: #1a237e;
-                    color: white;
-                    border: none;
-                    border-radius: 50%;
-                    width: 40px;
-                    height: 40px;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-                    font-size: 20px;
-                    transition: all 0.2s;
-                }
-                #custom-sidebar-toggle:hover {
-                    background: #3949ab;
-                    transform: scale(1.1);
-                }
-                .sidebar-visible {
-                    transform: translateX(0) !important;
-                    visibility: visible !important;
-                    opacity: 1 !important;
-                }
-                .sidebar-hidden {
-                    transform: translateX(-100%) !important;
-                    visibility: hidden !important;
-                    opacity: 0 !important;
-                }
-            </style>
-            <button id="custom-sidebar-toggle" title="显示/隐藏控制面板">☰</button>
-        `;
-
-        document.body.appendChild(controlBtn);
-
-        // 显示控制按钮
-        setTimeout(() => {
-            controlBtn.style.display = 'block';
-        }, 100);
-
-        // 绑定点击事件
-        document.getElementById('custom-sidebar-toggle').addEventListener('click', function() {
-            const sidebar = document.querySelector('section[data-testid="stSidebar"]');
-            if (sidebar) {
-                if (sidebar.classList.contains('sidebar-hidden')) {
-                    sidebar.classList.remove('sidebar-hidden');
-                    sidebar.classList.add('sidebar-visible');
-                    this.innerHTML = '×';
-                } else {
-                    sidebar.classList.remove('sidebar-visible');
-                    sidebar.classList.add('sidebar-hidden');
-                    this.innerHTML = '☰';
-                }
-            }
-        });
-    };
-
-    // 3. 显示侧边栏
-    const showSidebar = () => {
-        const sidebar = document.querySelector('section[data-testid="stSidebar"]');
-        if (sidebar) {
-            sidebar.style.visibility = 'visible';
-            sidebar.style.opacity = '1';
-            sidebar.style.transform = 'translateX(0)';
-            sidebar.style.width = '300px';
-            sidebar.classList.add('sidebar-visible');
-        }
-    };
-
-    // 执行所有初始化步骤
-    removeDefaultControls();
-    createCustomControl();
-    showSidebar();
-
-    // 额外安全措施：每隔一段时间检查一次
-    setInterval(() => {
-        removeDefaultControls();
-    }, 1000);
-
-}, 300); // 延迟300ms执行，确保页面基础框架加载完成
-</script>
-""", unsafe_allow_html=True)
-
-# ========== 4. 隐藏Streamlit默认的其他元素 ==========
-hide_streamlit_style = """
-<style>
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-header {visibility: hidden;}
-.stDeployButton {display: none;}
-.viewerBadge_container__1QSob {display: none;}
-</style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
-
-# ... 后面是您原有的数据生成和页面内容代码 ...
-
-# ========== 4. 工业自动化主题样式 ==========
+# ========== 2. 最小化的样式 ==========
+# 只保留必要的样式，避免与 Streamlit 原生样式冲突
 st.markdown("""
 <style>
     .main-header {
         background: linear-gradient(90deg, #1a237e 0%, #283593 100%);
         color: white;
-        padding: 25px;
+        padding: 20px;
         border-radius: 10px;
         margin-bottom: 20px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -201,11 +39,11 @@ st.markdown("""
 
     .metric-card {
         background: white;
-        padding: 20px;
-        border-radius: 10px;
+        padding: 15px;
+        border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.08);
         border-top: 4px solid;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
     }
 
     .metric-sales { border-top-color: #1a237e; }
@@ -213,29 +51,23 @@ st.markdown("""
     .metric-regions { border-top-color: #5c6bc0; }
     .metric-growth { border-top-color: #7986cb; }
 
-    .status-lead { background: #e3f2fd; color: #1565c0; padding: 3px 8px; border-radius: 12px; }
-    .status-quote { background: #e8eaf6; color: #3949ab; padding: 3px 8px; border-radius: 12px; }
-    .status-design { background: #f3e5f5; color: #7b1fa2; padding: 3px 8px; border-radius: 12px; }
-    .status-production { background: #fff3e0; color: #ef6c00; padding: 3px 8px; border-radius: 12px; }
-    .status-delivery { background: #e8f5e9; color: #2e7d32; padding: 3px 8px; border-radius: 12px; }
-    .status-after { background: #f1f8e9; color: #689f38; padding: 3px 8px; border-radius: 12px; }
-
-    .region-sz { background: #1a237e; color: white; }
-    .region-gz { background: #3949ab; color: white; }
-    .region-suzhou { background: #5c6bc0; color: white; }
-    .region-tj { background: #7986cb; color: white; }
-    .region-other { background: #9fa8da; color: white; }
-
     .positive { color: #4caf50; font-weight: bold; }
     .negative { color: #f44336; font-weight: bold; }
     .warning { color: #ff9800; font-weight: bold; }
+
+    /* 隐藏 Streamlit 的默认元素 */
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    .stDeployButton {display: none;}
 </style>
 """, unsafe_allow_html=True)
 
 
-# ========== 5. 生成模拟数据 ==========
+# ========== 3. 生成模拟数据 ==========
 def generate_tuoweisi_data():
+    """生成自动化设备制造商模拟数据"""
     np.random.seed(2026)
+
     regions = ['深圳总公司', '广州办事处', '苏州办事处', '天津办事处',
                '温州办事处', '宁波办事处', '厦门办事处', '青岛办事处', '成都办事处']
     region_colors = {
@@ -243,6 +75,7 @@ def generate_tuoweisi_data():
         '天津办事处': '#7986cb', '温州办事处': '#9575cd', '宁波办事处': '#7e57c2',
         '厦门办事处': '#673ab7', '青岛办事处': '#5e35b1', '成都办事处': '#512da8'
     }
+
     product_lines = ['自动冲针机', '自动锁螺丝机', '机器人集成', '非标定制线']
     product_models = {
         '自动冲针机': ['TO-901手持式', 'TO-902单轴式', 'TO-905平台式', 'TO-908机器人式'],
@@ -250,25 +83,40 @@ def generate_tuoweisi_data():
         '机器人集成': ['四轴机器人线', '六轴机器人线', '协作机器人线'],
         '非标定制线': ['检测专机', '组装专机', '包装专机']
     }
+
     industries = ['消费电子', '家用电器', '汽车零部件', '通讯设备',
                   '新能源', '医疗器械', '玩具礼品', '仪器仪表']
+
     project_statuses = ['线索跟进', '方案报价', '设计阶段', '生产制造',
                         '调试交付', '售后服务', '项目结案']
 
-    # 销售机会数据
+    # 生成销售机会数据
     today = datetime.now()
     opportunities = []
+
     for i in range(50):
         region = np.random.choice(regions)
         industry = np.random.choice(industries)
         product_line = np.random.choice(product_lines)
         product_model = np.random.choice(product_models[product_line])
-        contract_value = np.random.uniform(50000, 1000000) if '机器人' in product_line or '定制线' in product_line else np.random.uniform(50000, 300000)
+
+        if '机器人' in product_line:
+            contract_value = np.random.uniform(200000, 800000)
+        elif '定制线' in product_line:
+            contract_value = np.random.uniform(300000, 1000000)
+        else:
+            contract_value = np.random.uniform(50000, 300000)
+
         status = np.random.choice(project_statuses, p=[0.2, 0.15, 0.1, 0.15, 0.1, 0.2, 0.1])
         status_index = project_statuses.index(status)
         progress = (status_index + 1) * 100 / len(project_statuses)
+
         create_date = today - timedelta(days=np.random.randint(10, 180))
-        delivery_date = create_date + timedelta(days=np.random.randint(60, 120)) if status in ['调试交付', '售后服务', '项目结案'] else None
+        if status in ['调试交付', '售后服务', '项目结案']:
+            delivery_date = create_date + timedelta(days=np.random.randint(60, 120))
+        else:
+            delivery_date = None
+
         opportunities.append({
             'opp_id': f'OPP{2026000 + i}',
             'customer_name': f'{industry}客户{np.random.randint(1, 20)}',
@@ -284,11 +132,13 @@ def generate_tuoweisi_data():
             'sales_person': f'销售{np.random.randint(1, 6)}',
             'probability': np.random.uniform(0.3, 0.9) if status in ['线索跟进', '方案报价'] else 1.0
         })
+
     df_opps = pd.DataFrame(opportunities)
 
-    # 月度销售数据
+    # 生成月度销售数据
     months = pd.date_range(start='2024-01-01', end='2024-12-01', freq='MS')
     monthly_sales = []
+
     for month in months:
         for region in regions[:4]:
             for product_line in product_lines:
@@ -299,14 +149,17 @@ def generate_tuoweisi_data():
                     'sales_amount': np.random.uniform(100000, 500000),
                     'projects_count': np.random.randint(1, 6)
                 })
+
     df_monthly = pd.DataFrame(monthly_sales)
 
-    # 售后服务数据
+    # 生成售后服务数据
     service_data = []
     service_types = ['安装调试', '操作培训', '配件更换', '故障维修', '预防保养']
+
     for _ in range(30):
         region = np.random.choice(regions)
         product_line = np.random.choice(product_lines)
+
         service_data.append({
             'service_id': f'SVC{np.random.randint(1000, 9999)}',
             'region': region,
@@ -317,6 +170,7 @@ def generate_tuoweisi_data():
             'response_days': np.random.randint(1, 7),
             'customer_rating': np.random.choice([1, 2, 3, 4, 5], p=[0.05, 0.1, 0.2, 0.4, 0.25])
         })
+
     df_service = pd.DataFrame(service_data)
 
     return {
@@ -335,68 +189,80 @@ data = generate_tuoweisi_data()
 df_opps = data['df_opps']
 df_monthly = data['df_monthly']
 df_service = data['df_service']
+
 today = datetime.now()
 
-
-# ========== 6. 计算关键指标 ==========
+# 计算关键指标
 current_year = df_monthly[df_monthly['month'].dt.year == 2024]
 total_annual_sales = current_year['sales_amount'].sum()
 total_projects = current_year['projects_count'].sum()
+
 active_projects = df_opps[~df_opps['status'].isin(['项目结案'])]
 active_projects_value = active_projects['contract_value'].sum()
-avg_delivery_days = (df_opps[df_opps['status'].isin(['调试交付', '售后服务', '项目结案'])]['expected_delivery'] - df_opps[df_opps['status'].isin(['调试交付', '售后服务', '项目结案'])]['create_date']).dt.days.mean() if not df_opps[df_opps['status'].isin(['调试交付', '售后服务', '项目结案'])].empty else 0
+
+if not df_opps.empty:
+    df_opps_delivered = df_opps[df_opps['status'].isin(['调试交付', '售后服务', '项目结案'])]
+    if not df_opps_delivered.empty:
+        avg_delivery_days = (df_opps_delivered['expected_delivery'] - df_opps_delivered['create_date']).dt.days.mean()
+    else:
+        avg_delivery_days = 0
+else:
+    avg_delivery_days = 0
+
 avg_service_rating = df_service['customer_rating'].mean()
 
+# ========== 4. 侧边栏 ==========
+# 关键：确保侧边栏有足够内容和明确的标题
+st.sidebar.title("⚙️ 拓威斯自动化")
 
-# ========== 7. 主页面布局 ==========
-# 标题栏
+# 在侧边栏中添加足够的控件，确保其稳定显示
+st.sidebar.markdown("### 🎛️ 控制面板")
+
+# 添加一些实际控件
+time_range = st.sidebar.selectbox(
+    "时间范围",
+    ["本月", "本季度", "本年度", "最近12个月"],
+    index=2
+)
+
+regions_selected = st.sidebar.multiselect(
+    "选择办事处",
+    data['regions'],
+    default=data['regions'][:4]
+)
+
+products_selected = st.sidebar.multiselect(
+    "选择产品线",
+    data['product_lines'],
+    default=data['product_lines']
+)
+
+st.sidebar.divider()
+
+# 添加一个刷新按钮
+if st.sidebar.button("🔄 刷新数据", use_container_width=True):
+    st.rerun()
+
+# 添加一个简单的提示
+with st.sidebar.expander("💡 使用提示"):
+    st.write("""
+    1. 点击图表可交互
+    2. 鼠标悬停查看详情
+    3. 使用筛选器查看不同维度
+    """)
+
+# ========== 5. 主页面内容 ==========
+# 主标题
 st.markdown("""
 <div class="main-header">
     <h1>⚙️ 拓威斯自动化 - 智能管理驾驶舱</h1>
-    专注自动螺丝机、冲针机、非标自动化设备的销售与项目管理
+    <p>专注自动螺丝机、冲针机、非标自动化设备的销售与项目管理</p>
 </div>
 """, unsafe_allow_html=True)
 
-# 侧边栏控制面板
-with st.sidebar:
-    st.markdown("### 🎛️ 控制面板")
-
-    # 区域筛选
-    regions_selected = st.multiselect(
-        "选择办事处",
-        data['regions'],
-        default=data['regions'][:4]
-    )
-
-    # 产品线筛选
-    products_selected = st.multiselect(
-        "选择产品线",
-        data['product_lines'],
-        default=data['product_lines']
-    )
-
-    # 项目状态筛选
-    status_selected = st.multiselect(
-        "选择项目状态",
-        data['project_statuses'],
-        default=data['project_statuses']
-    )
-
-    st.divider()
-
-    # 时间范围
-    time_range = st.selectbox(
-        "时间范围",
-        ["本月", "本季度", "本年度", "最近12个月"],
-        index=2
-    )
-
-    if st.button("🔄 刷新数据"):
-        st.rerun()
-
-
-# ========== 8. 核心运营指标 ==========
+# 第一行：核心运营指标
 st.markdown("### 📈 核心运营指标")
+
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
@@ -404,7 +270,7 @@ with col1:
     <div class="metric-card metric-sales">
         <div style="font-size: 14px; color: #666; margin-bottom: 5px;">年度销售额</div>
         <div style="font-size: 28px; font-weight: bold; color: #1a237e;">¥{total_annual_sales:,.0f}</div>
-        <div style="font-size: 12px; margin-top: 5px;">项目数: {total_projects:,}
+        <div style="font-size: 12px; margin-top: 5px;">项目数: {total_projects:,}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -413,7 +279,7 @@ with col2:
     <div class="metric-card metric-projects">
         <div style="font-size: 14px; color: #666; margin-bottom: 5px;">在执项目</div>
         <div style="font-size: 28px; font-weight: bold; color: #3949ab;">{len(active_projects)}</div>
-        <div style="font-size: 12px; margin-top: 5px;">合同额: ¥{active_projects_value:,.0f}
+        <div style="font-size: 12px; margin-top: 5px;">合同额: ¥{active_projects_value:,.0f}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -422,7 +288,7 @@ with col3:
     <div class="metric-card metric-regions">
         <div style="font-size: 14px; color: #666; margin-bottom: 5px;">平均交付周期</div>
         <div style="font-size: 28px; font-weight: bold; color: #5c6bc0;">{avg_delivery_days:.0f}天</div>
-        <div style="font-size: 12px; margin-top: 5px;">当前进行中: {len(df_opps[df_opps['status'] == '生产制造'])}个
+        <div style="font-size: 12px; margin-top: 5px;">当前进行中: {len(df_opps[df_opps['status'] == '生产制造'])}个</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -432,19 +298,21 @@ with col4:
     <div class="metric-card metric-growth">
         <div style="font-size: 14px; color: #666; margin-bottom: 5px;">服务满意度</div>
         <div style="font-size: 28px; font-weight: bold; color: #7986cb;">{avg_service_rating:.1f}</div>
-        <div style="font-size: 12px; margin-top: 5px;">评分<span class="{rating_color}">{'优秀' if avg_service_rating >= 4 else '良好' if avg_service_rating >= 3 else '需改进'}</span>
+        <div style="font-size: 12px; margin-top: 5px;">
+            评分<span class="{rating_color}">{'优秀' if avg_service_rating >= 4 else '良好' if avg_service_rating >= 3 else '需改进'}</span>
+        </div>
     </div>
     """, unsafe_allow_html=True)
 
 st.divider()
 
-
-# ========== 9. 销售漏斗和区域分析 ==========
+# 第二行：销售漏斗和区域分析
 col1, col2 = st.columns([3, 2])
 
 with col1:
     st.markdown("### 📊 销售漏斗分析")
     status_dist = df_opps['status'].value_counts().reindex(data['project_statuses']).fillna(0)
+
     fig_funnel = go.Figure(go.Funnel(
         y=status_dist.index.tolist(),
         x=status_dist.values.tolist(),
@@ -452,17 +320,20 @@ with col1:
         opacity=0.8,
         marker=dict(color=['#e3f2fd', '#e8eaf6', '#f3e5f5', '#fff3e0', '#e8f5e9', '#f1f8e9', '#f5f5f5'])
     ))
+
     fig_funnel.update_layout(
         height=400,
         title="销售漏斗 - 项目状态分布",
         showlegend=False,
         margin=dict(l=0, r=0, t=40, b=0)
     )
+
     st.plotly_chart(fig_funnel, use_container_width=True)
 
 with col2:
     st.markdown("### 🗺️ 区域业绩分布")
     region_sales = df_monthly.groupby('region')['sales_amount'].sum().reset_index()
+
     fig_region = px.pie(
         region_sales,
         values='sales_amount',
@@ -471,39 +342,43 @@ with col2:
         color_discrete_map=data['region_colors'],
         hole=0.3
     )
+
     fig_region.update_traces(
         textposition='inside',
         textinfo='percent+label',
-        hovertemplate='<b>%{label}</b>销售额: ¥%{value:,.0f}'
+        hovertemplate='<b>%{label}</b><br>销售额: ¥%{value:,.0f}'
     )
+
     fig_region.update_layout(
         height=400,
         showlegend=False,
         margin=dict(l=0, r=0, t=0, b=0)
     )
+
     st.plotly_chart(fig_region, use_container_width=True)
 
 st.divider()
 
-
-# ========== 10. 项目监控和产品分析 ==========
+# 第三行：项目监控和产品分析
 col1, col2 = st.columns(2)
 
 with col1:
     st.markdown("### 📋 重点项目监控")
     high_value_projects = df_opps[df_opps['contract_value'] > 300000].sort_values('contract_value', ascending=False)
+
     if not high_value_projects.empty:
         for _, project in high_value_projects.head(3).iterrows():
-            status_class = f"status-{project['status'].replace(' ', '').lower()}"
             with st.container(border=True):
                 title_cols = st.columns([3, 1])
                 with title_cols[0]:
                     st.write(f"**{project['opp_id']} - {project['customer_name']}**")
                 with title_cols[1]:
-                    st.markdown(f'<span class="{status_class}">{project["status"]}</span>', unsafe_allow_html=True)
+                    st.write(f"**{project['status']}**")
+
                 st.caption(f"{project['industry']} · {project['product_model']} · {project['region']}")
                 st.progress(project['progress'] / 100)
                 st.caption(f"进度: {project['progress']:.0f}%")
+
                 metric_cols = st.columns(3)
                 with metric_cols[0]:
                     st.metric("合同额", f"¥{project['contract_value']:,.0f}")
@@ -517,6 +392,7 @@ with col1:
 
     st.markdown("##### ⚙️ 产品线销售分布")
     product_sales = df_monthly.groupby('product_line')['sales_amount'].sum().reset_index()
+
     fig_product = px.bar(
         product_sales.sort_values('sales_amount', ascending=True),
         y='product_line',
@@ -525,6 +401,7 @@ with col1:
         color='product_line',
         color_discrete_sequence=px.colors.qualitative.Set3
     )
+
     fig_product.update_layout(
         height=250,
         xaxis_title="销售额（元）",
@@ -532,12 +409,14 @@ with col1:
         plot_bgcolor='white',
         showlegend=False
     )
+
     st.plotly_chart(fig_product, use_container_width=True)
 
 with col2:
     st.markdown("### 🔧 售后服务看板")
     service_dist = df_service['service_type'].value_counts().reset_index()
     service_dist.columns = ['service_type', 'count']
+
     fig_service = px.bar(
         service_dist,
         x='service_type',
@@ -545,6 +424,7 @@ with col2:
         color='service_type',
         color_discrete_sequence=px.colors.qualitative.Pastel
     )
+
     fig_service.update_layout(
         height=300,
         xaxis_title="服务类型",
@@ -552,10 +432,12 @@ with col2:
         plot_bgcolor='white',
         showlegend=False
     )
+
     st.plotly_chart(fig_service, use_container_width=True)
 
     st.markdown("##### ⏳ 待处理服务单")
     pending_service = df_service[df_service['status'] == '待处理']
+
     if not pending_service.empty:
         for _, service in pending_service.head(3).iterrows():
             with st.container(border=True):
@@ -570,10 +452,10 @@ with col2:
 
 st.divider()
 
-
-# ========== 11. 月度趋势和业务洞察 ==========
+# 第四行：月度趋势和业务洞察
 st.markdown("### 📈 月度销售趋势")
 monthly_trend = df_monthly.groupby('month')['sales_amount'].sum().reset_index()
+
 fig_trend = go.Figure()
 fig_trend.add_trace(go.Scatter(
     x=monthly_trend['month'],
@@ -583,6 +465,7 @@ fig_trend.add_trace(go.Scatter(
     line=dict(color='#1a237e', width=3),
     marker=dict(size=6)
 ))
+
 fig_trend.update_layout(
     height=300,
     title="2024年月度销售趋势",
@@ -592,15 +475,20 @@ fig_trend.update_layout(
     hovermode='x unified',
     yaxis=dict(tickformat=',.0f')
 )
+
 st.plotly_chart(fig_trend, use_container_width=True)
 
+# 业务洞察
 st.markdown("### 💡 业务洞察")
+
 insights = [
-    {"icon": "💰", "title": "机器人集成订单增长", "content": "机器人集成线订单额同比增长35%，毛利率达42%，建议加大该产品线推广"},
+    {"icon": "💰", "title": "机器人集成订单增长",
+     "content": "机器人集成线订单额同比增长35%，毛利率达42%，建议加大该产品线推广"},
     {"icon": "📍", "title": "长三角地区需求旺盛", "content": "苏州、宁波办事处业绩增长显著，建议增加该区域技术支持人员"},
     {"icon": "⏱️", "title": "设计阶段周期偏长", "content": "项目在'设计阶段'平均停留21天，建议优化设计评审流程"},
     {"icon": "🔧", "title": "配件更换服务频次高", "content": "配件更换占服务总量的38%，建议优化易损件设计和备货策略"},
 ]
+
 cols = st.columns(2)
 for idx, insight in enumerate(insights):
     with cols[idx % 2]:
@@ -612,7 +500,7 @@ for idx, insight in enumerate(insights):
 st.divider()
 st.markdown(f"""
 <div style="text-align: center; color: #64748b; font-size: 12px; padding: 20px;">
-    ⚙️ 拓威斯自动化BI看板系统 | 数据更新时间: {datetime.now().strftime("%Y-%m-%d %H:%M")}
-    💡 本系统支持对接CRM、项目管理系统、售后服务系统 | 全国9大办事处数据实时同步
+    <p>⚙️ 拓威斯自动化BI看板系统 | 数据更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
+    <p>💡 本系统支持对接CRM、项目管理系统、售后服务系统 | 全国9大办事处数据实时同步</p>
 </div>
 """, unsafe_allow_html=True)
