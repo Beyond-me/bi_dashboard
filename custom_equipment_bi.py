@@ -766,7 +766,7 @@ for idx, insight in enumerate(insights):
 st.divider()
 st.markdown(f"""
 <div style="text-align: center; color: #64748b; font-size: 12px; padding: 20px;">
-    <p>⚙️ 智造云非标设备制造BI系统 | 数据更新时间: {datetime.now().strftime("%Y-%m-%d %H:%M")}</p>
+    <p>⚙️ 沐源机械非标设备制造BI系统 | 数据更新时间: {datetime.now().strftime("%Y-%m-%d %H:%M")}</p>
     <p>💡 本系统已对接：Project项目管理 | SolidWorks/UG设计 | 用友ERP | 金蝶财务 | OA办公</p>
     <p>📞 技术支持：400-800-非标设备 | www.custom-equipment-bi.com</p>
 </div>
