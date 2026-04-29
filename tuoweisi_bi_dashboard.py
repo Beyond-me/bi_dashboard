@@ -218,6 +218,9 @@ df_opps = data['df_opps']
 df_monthly = data['df_monthly']
 df_service = data['df_service']
 
+# 添加这行代码 - 定义 today 变量
+today = datetime.now()
+
 # 计算关键指标
 current_year = df_monthly[df_monthly['month'].dt.year == 2024]
 total_annual_sales = current_year['sales_amount'].sum()
