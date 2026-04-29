@@ -22,7 +22,7 @@ st.set_page_config(
     page_title="拓威斯自动化 - 智能管理驾驶舱",
     page_icon="⚙️",
     layout="wide",
-    initial_sidebar_state="auto"  # 改为 auto
+    initial_sidebar_state="expanded"  # 改为 auto
 )
 
 # 在页面配置后立即添加
@@ -417,7 +417,7 @@ with col1:
         margin=dict(l=0, r=0, t=40, b=0)
     )
 
-    st.plotly_chart(fig_funnel, width='stretch')
+    st.plotly_chart(fig_funnel, use_container_width=True)
 
 with col2:
     st.markdown("### 🗺️ 区域业绩分布")
@@ -446,7 +446,7 @@ with col2:
         margin=dict(l=0, r=0, t=0, b=0)
     )
 
-    st.plotly_chart(fig_region, width='stretch')
+    st.plotly_chart(fig_region, use_container_width=True)
 
 st.divider()
 
@@ -512,7 +512,7 @@ with col1:
         showlegend=False
     )
 
-    st.plotly_chart(fig_product, width='stretch')
+    st.plotly_chart(fig_product, use_container_width=True)
 
 with col2:
     st.markdown("### 🔧 售后服务看板")
@@ -537,7 +537,7 @@ with col2:
         showlegend=False
     )
 
-    st.plotly_chart(fig_service, width='stretch')
+    st.plotly_chart(fig_service, use_container_width=True)
 
     # 待处理服务
     st.markdown("##### ⏳ 待处理服务单")
@@ -584,7 +584,7 @@ fig_trend.update_layout(
     yaxis=dict(tickformat=',.0f')
 )
 
-st.plotly_chart(fig_trend, width='stretch')
+st.plotly_chart(fig_trend, use_container_width=True)
 
 # 业务洞察
 st.markdown("### 💡 业务洞察")
@@ -611,4 +611,22 @@ st.markdown(f"""
     <p>⚙️ 拓威斯自动化BI看板系统 | 数据更新时间: {datetime.now().strftime("%Y-%m-%d %H:%M")}</p>
     <p>💡 本系统支持对接CRM、项目管理系统、售后服务系统 | 全国9大办事处数据实时同步</p>
 </div>
+""", unsafe_allow_html=True)
+
+st.markdown("""
+
+<style>
+
+.block-container {
+
+max-width: 1400px; /* 限制整体内容的最大宽度 */
+
+padding-left: 1rem;
+
+padding-right: 1rem;
+
+}
+
+</style>
+
 """, unsafe_allow_html=True)
