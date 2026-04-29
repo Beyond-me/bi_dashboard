@@ -21,7 +21,7 @@ st.set_page_config(
     page_title="拓威斯自动化 - 智能管理驾驶舱",
     page_icon="⚙️",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded"  # 保持默认展开
 )
 
 # 隐藏streamlit默认样式
@@ -32,6 +32,32 @@ footer {visibility: hidden;}
 header {visibility: hidden;}
 .stDeployButton {display: none;}
 .viewerBadge_container__1QSob {display: none;}
+
+/* 响应式侧边栏优化 */
+@media (max-width: 768px) {
+    section[data-testid="stSidebar"] {
+        min-width: 200px;
+        max-width: 85vw;
+    }
+    .st-emotion-cache-6qob1r {
+        padding: 1rem 0.5rem;
+    }
+    /* 手机端压缩一些间距 */
+    .main-header {
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+    .metric-card {
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+}
+
+@media (min-width: 769px) {
+    section[data-testid="stSidebar"] {
+        min-width: 280px;
+    }
+}
 </style>
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
@@ -69,18 +95,11 @@ st.markdown("""
     .status-delivery { background: #e8f5e9; color: #2e7d32; padding: 3px 8px; border-radius: 12px; }
     .status-after { background: #f1f8e9; color: #689f38; padding: 3px 8px; border-radius: 12px; }
 
-    .region-sz { background: #1a237e; color: white; }
-    .region-gz { background: #3949ab; color: white; }
-    .region-suzhou { background: #5c6bc0; color: white; }
-    .region-tj { background: #7986cb; color: white; }
-    .region-other { background: #9fa8da; color: white; }
-
     .positive { color: #4caf50; font-weight: bold; }
     .negative { color: #f44336; font-weight: bold; }
     .warning { color: #ff9800; font-weight: bold; }
 </style>
 """, unsafe_allow_html=True)
-
 
 # 生成拓威斯自动化行业模拟数据
 def generate_tuoweisi_data():
