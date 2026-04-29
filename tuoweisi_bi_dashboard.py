@@ -16,49 +16,6 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# --- 修复侧边栏隐藏后找不到的问题 ---
-# 使用 st.markdown 注入 CSS 样式
-# st.markdown("""
-# <style>
-#     /* 保留原来的蓝色背景和字体美化 */
-#     .main-header {
-#         background: linear-gradient(90deg, #1a237e 0%, #283593 100%);
-#         color: white;
-#         padding: 1rem;
-#         border-radius: 10px;
-#         text-align: center;
-#         margin-bottom: 1rem;
-#     }
-#
-#     /* 重点：将打开侧边栏的按钮固定在右上角 */
-#     div[data-testid="stSidebarNavButton"] {
-#         position: fixed;
-#         top: 10px;
-#         right: 10px;
-#         z-index: 99999;
-#         background-color: #1a237e;
-#         color: white;
-#         border-radius: 50%;
-#         width: 40px;
-#         height: 40px;
-#         font-size: 20px;
-#         display: flex;
-#         align-items: center;
-#         justify-content: center;
-#         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-#         cursor: pointer;
-#     }
-#     div[data-testid="stSidebarNavButton"]:hover {
-#         background-color: #3949ab;
-#     }
-# </style>
-# """, unsafe_allow_html=True)
-
-# 使用 Streamlit 原生按钮作为触发器（绝对不会出现乱码）
-# 注意：这里我们用透明按钮占个位，真正的按钮已经被上面的 CSS 强制移到了右上角
-# if st.button("☰", key="hidden_trigger"):
-#     pass
-
 # 页面配置
 st.set_page_config(
     page_title="拓威斯自动化 - 智能管理驾驶舱",
@@ -408,7 +365,7 @@ with col1:
         margin=dict(l=0, r=0, t=40, b=0)
     )
 
-    st.plotly_chart(fig_funnel, use_container_width=True)
+    st.plotly_chart(fig_funnel, width='stretch')
 
 with col2:
     st.markdown("### 🗺️ 区域业绩分布")
@@ -437,7 +394,7 @@ with col2:
         margin=dict(l=0, r=0, t=0, b=0)
     )
 
-    st.plotly_chart(fig_region, use_container_width=True)
+    st.plotly_chart(fig_region, width='stretch')
 
 st.divider()
 
@@ -503,7 +460,7 @@ with col1:
         showlegend=False
     )
 
-    st.plotly_chart(fig_product, use_container_width=True)
+    st.plotly_chart(fig_product, width='stretch')
 
 with col2:
     st.markdown("### 🔧 售后服务看板")
@@ -528,7 +485,7 @@ with col2:
         showlegend=False
     )
 
-    st.plotly_chart(fig_service, use_container_width=True)
+    st.plotly_chart(fig_service, width='stretch')
 
     # 待处理服务
     st.markdown("##### ⏳ 待处理服务单")
@@ -575,7 +532,7 @@ fig_trend.update_layout(
     yaxis=dict(tickformat=',.0f')
 )
 
-st.plotly_chart(fig_trend, use_container_width=True)
+st.plotly_chart(fig_trend, width='stretch')
 
 # 业务洞察
 st.markdown("### 💡 业务洞察")
