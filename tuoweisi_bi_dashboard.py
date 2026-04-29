@@ -17,6 +17,35 @@ import warnings
 warnings.filterwarnings('ignore')
 
 # 页面配置
+st.markdown("""
+<style>
+    .sidebar-toggle {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        z-index: 9999;
+        background: #1a237e;
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .sidebar-toggle:hover {
+        background: #3949ab;
+    }
+</style>
+
+<button class="sidebar-toggle" onclick="document.querySelector('[data-testid=\"stSidebar\"]').style.width = '300px';">
+    ☰
+</button>
+""", unsafe_allow_html=True)
+
 st.set_page_config(
     page_title="拓威斯自动化 - 智能管理驾驶舱",
     page_icon="⚙️",
