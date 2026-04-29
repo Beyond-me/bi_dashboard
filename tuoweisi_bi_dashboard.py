@@ -16,36 +16,50 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# 页面配置
+# --- 修复侧边栏隐藏后找不到的问题 ---
+# 使用 st.markdown 注入 CSS 样式
 st.markdown("""
 <style>
-    .sidebar-toggle {
+    /* 保留原来的蓝色背景和字体美化 */
+    .main-header {
+        background: linear-gradient(90deg, #1a237e 0%, #283593 100%);
+        color: white;
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    /* 重点：将打开侧边栏的按钮固定在右上角 */
+    div[data-testid="stSidebarNavButton"] {
         position: fixed;
         top: 10px;
         right: 10px;
-        z-index: 9999;
-        background: #1a237e;
+        z-index: 99999;
+        background-color: #1a237e;
         color: white;
-        border: none;
         border-radius: 50%;
         width: 40px;
         height: 40px;
-        cursor: pointer;
+        font-size: 20px;
         display: flex;
         align-items: center;
         justify-content: center;
         box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        cursor: pointer;
     }
-    .sidebar-toggle:hover {
-        background: #3949ab;
+    div[data-testid="stSidebarNavButton"]:hover {
+        background-color: #3949ab;
     }
 </style>
-
-<button class="sidebar-toggle" onclick="document.querySelector('[data-testid=\"stSidebar\"]').style.width = '300px';">
-    ☰
-</button>
 """, unsafe_allow_html=True)
 
+# 使用 Streamlit 原生按钮作为触发器（绝对不会出现乱码）
+# 注意：这里我们用透明按钮占个位，真正的按钮已经被上面的 CSS 强制移到了右上角
+if st.button("☰", key="hidden_trigger"):
+    pass
+
+# 页面配置
 st.set_page_config(
     page_title="拓威斯自动化 - 智能管理驾驶舱",
     page_icon="⚙️",
