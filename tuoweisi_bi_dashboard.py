@@ -3,7 +3,7 @@
 # @Author  : lihaizhen
 # @File    : tuoweisi_bi_dashboard.py
 # @Software: PyCharm
-# @Desc    : 拓威斯自动化BI看板 - 侧边栏可关闭/展开优化版
+# @Desc    : 拓威斯自动化BI看板 - 消除侧边栏闪烁优化版
 
 import streamlit as st
 import pandas as pd
@@ -15,112 +15,165 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
+# ========== 1. 核心优化：在最开头注入CSS隐藏默认侧边栏按钮 ==========
+# 这段代码必须放在任何其他Streamlit调用之前
+st.markdown("""
+<style>
+    /* 立即隐藏所有默认的侧边栏控制元素 */
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapsedControl"],
+    .st-emotion-cache-1p1n0z3,
+    .st-emotion-cache-1qg05tj {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        width: 0 !important;
+        height: 0 !important;
+        pointer-events: none !important;
+    }
 
-# ========== 1. 页面配置 ==========
+    /* 预隐藏侧边栏，等待我们的自定义控制 */
+    section[data-testid="stSidebar"] {
+        visibility: hidden !important;
+        opacity: 0 !important;
+        transition: none !important;
+    }
+
+    /* 我们的自定义控制按钮容器 - 初始隐藏 */
+    #custom-sidebar-control {
+        display: none;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# ========== 2. 页面配置 ==========
 st.set_page_config(
     page_title="拓威斯自动化 - 智能管理驾驶舱",
     page_icon="⚙️",
     layout="wide",
-    initial_sidebar_state="expanded"  # 初始展开，后续通过按钮控制
+    initial_sidebar_state="expanded"
 )
 
-
-# ========== 2. 核心解决方案：侧边栏可关闭/展开 ==========
-# 注入 CSS + JavaScript，实现侧边栏的关闭/展开控制
+# ========== 3. 延迟加载的自定义控制逻辑 ==========
+# 在页面配置后立即执行，但延迟加载
 st.markdown("""
-<style>
-    /* 强制侧边栏基础样式 */
-    section[data-testid="stSidebar"] {
-        display: block !important;
-        visibility: visible !important;
-        opacity: 1 !important;
-        transition: all 0.3s ease; /* 平滑过渡动画 */
-    }
-
-    /* 侧边栏折叠时的宽度（可根据需要调整） */
-    .sidebar-collapsed {
-        width: 0 !important;
-        transform: translateX(-100%) !important;
-    }
-
-    /* 侧边栏展开时的宽度（可根据需要调整） */
-    .sidebar-expanded {
-        width: 300px !important;
-        transform: translateX(0) !important;
-    }
-
-    /* 自定义关闭按钮样式 */
-    .sidebar-toggle {
-        position: fixed;
-        top: 10px;
-        right: 10px;
-        z-index: 9999;
-        background: #1a237e;
-        color: white;
-        border: none;
-        border-radius: 50%;
-       dth wi: 40px;
-        height: 40px;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        font-size: 18px;
-        transition: background 0.2s;
-    }
-    .sidebar-toggle:hover {
-        background: #3949ab;
-    }
-</style>
-
 <script>
-// 侧边栏状态管理（true=展开，false=折叠）
-let isSidebarExpanded = true;
+// 延迟执行，确保页面DOM完全加载
+setTimeout(function() {
+    // 1. 完全移除所有默认的侧边栏控制元素
+    const removeDefaultControls = () => {
+        const selectors = [
+            '[data-testid="collapsedControl"]',
+            '[data-testid="stSidebarCollapsedControl"]',
+            '.st-emotion-cache-1p1n0z3',
+            '.st-emotion-cache-1qg05tj',
+            '.stSidebarToggle'
+        ];
 
-// 切换侧边栏状态
-function toggleSidebar() {
-    const sidebar = document.querySelector('section[data-testid="stSidebar"]');
-    if (!sidebar) return;
+        selectors.forEach(selector => {
+            const elements = document.querySelectorAll(selector);
+            elements.forEach(el => {
+                if (el && el.parentNode) {
+                    el.parentNode.removeChild(el);
+                }
+            });
+        });
+    };
 
-    isSidebarExpanded = !isSidebarExpanded;
-    const toggleBtn = document.querySelector('.sidebar-toggle');
+    // 2. 创建并显示我们的自定义控制按钮
+    const createCustomControl = () => {
+        const controlBtn = document.createElement('div');
+        controlBtn.id = 'custom-sidebar-control';
+        controlBtn.innerHTML = `
+            <style>
+                #custom-sidebar-toggle {
+                    position: fixed;
+                    top: 10px;
+                    right: 10px;
+                    z-index: 9999;
+                    background: #1a237e;
+                    color: white;
+                    border: none;
+                    border-radius: 50%;
+                    width: 40px;
+                    height: 40px;
+                    cursor: pointer;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                    font-size: 20px;
+                    transition: all 0.2s;
+                }
+                #custom-sidebar-toggle:hover {
+                    background: #3949ab;
+                    transform: scale(1.1);
+                }
+                .sidebar-visible {
+                    transform: translateX(0) !important;
+                    visibility: visible !important;
+                    opacity: 1 !important;
+                }
+                .sidebar-hidden {
+                    transform: translateX(-100%) !important;
+                    visibility: hidden !important;
+                    opacity: 0 !important;
+                }
+            </style>
+            <button id="custom-sidebar-toggle" title="显示/隐藏控制面板">☰</button>
+        `;
 
-    if (isSidebarExpanded) {
-        // 展开侧边栏
-        sidebar.classList.remove('sidebar-collapsed');
-        sidebar.classList.add('sidebar-expanded');
-        toggleBtn.innerHTML = '×'; // 关闭图标
-    } else {
-        // 折叠侧边栏
-        sidebar.classList.remove('sidebar-expanded');
-        sidebar.classList.add('sidebar-collapsed');
-        toggleBtn.innerHTML = '☰'; // 菜单图标
-    }
-}
+        document.body.appendChild(controlBtn);
 
-// 页面加载后初始化
-document.addEventListener('DOMContentLoaded', () => {
-    const toggleBtn = document.createElement('button');
-    toggleBtn.className = 'sidebar-toggle';
-    toggleBtn.innerHTML = '×'; // 初始为“关闭”图标（因为侧边栏默认展开）
-    toggleBtn.onclick = toggleSidebar;
-    document.body.appendChild(toggleBtn);
+        // 显示控制按钮
+        setTimeout(() => {
+            controlBtn.style.display = 'block';
+        }, 100);
 
-    // 监听窗口大小变化，适配移动端
-    window.addEventListener('resize', () => {
+        // 绑定点击事件
+        document.getElementById('custom-sidebar-toggle').addEventListener('click', function() {
+            const sidebar = document.querySelector('section[data-testid="stSidebar"]');
+            if (sidebar) {
+                if (sidebar.classList.contains('sidebar-hidden')) {
+                    sidebar.classList.remove('sidebar-hidden');
+                    sidebar.classList.add('sidebar-visible');
+                    this.innerHTML = '×';
+                } else {
+                    sidebar.classList.remove('sidebar-visible');
+                    sidebar.classList.add('sidebar-hidden');
+                    this.innerHTML = '☰';
+                }
+            }
+        });
+    };
+
+    // 3. 显示侧边栏
+    const showSidebar = () => {
         const sidebar = document.querySelector('section[data-testid="stSidebar"]');
-        if (sidebar && isSidebarExpanded) {
-            sidebar.classList.add('sidebar-expanded');
-            sidebar.classList.remove('sidebar-collapsed');
+        if (sidebar) {
+            sidebar.style.visibility = 'visible';
+            sidebar.style.opacity = '1';
+            sidebar.style.transform = 'translateX(0)';
+            sidebar.style.width = '300px';
+            sidebar.classList.add('sidebar-visible');
         }
-    });
-});
+    };
+
+    // 执行所有初始化步骤
+    removeDefaultControls();
+    createCustomControl();
+    showSidebar();
+
+    // 额外安全措施：每隔一段时间检查一次
+    setInterval(() => {
+        removeDefaultControls();
+    }, 1000);
+
+}, 300); // 延迟300ms执行，确保页面基础框架加载完成
 </script>
 """, unsafe_allow_html=True)
 
-
-# ========== 3. 隐藏默认元素（保持界面简洁） ==========
+# ========== 4. 隐藏Streamlit默认的其他元素 ==========
 hide_streamlit_style = """
 <style>
 #MainMenu {visibility: hidden;}
@@ -132,6 +185,7 @@ header {visibility: hidden;}
 """
 st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
+# ... 后面是您原有的数据生成和页面内容代码 ...
 
 # ========== 4. 工业自动化主题样式 ==========
 st.markdown("""
