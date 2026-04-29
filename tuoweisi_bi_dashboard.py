@@ -3,8 +3,7 @@
 # @Author  : lihaizhen
 # @File    : tuoweisi_bi_dashboard.py
 # @Software: PyCharm
-# @Desc    :
-
+# @Desc    : 拓威斯自动化BI看板 - 解决侧边栏显示问题优化版
 
 import streamlit as st
 import pandas as pd
@@ -16,89 +15,75 @@ import warnings
 
 warnings.filterwarnings('ignore')
 
-# 页面配置
-# 修改页面配置
+# ========== 1. 页面配置 ==========
 st.set_page_config(
     page_title="拓威斯自动化 - 智能管理驾驶舱",
     page_icon="⚙️",
     layout="wide",
-    initial_sidebar_state="expanded"  # 改为 auto
+    initial_sidebar_state="expanded"  # 强制侧边栏默认展开
 )
 
-# 在页面配置后立即添加
+# ========== 2. 强制侧边栏显示的核心解决方案 ==========
+# 注意：这个部分必须放在最前面，确保页面加载时就执行
 st.markdown("""
-<script>
-// 强制显示侧边栏
-document.addEventListener('DOMContentLoaded', function() {
-    const sidebar = document.querySelector('[data-testid="stSidebar"]');
-    if (sidebar) {
-        sidebar.style.display = 'block';
-        sidebar.style.visibility = 'visible';
-        sidebar.style.opacity = '1';
-
-        // 如果是折叠状态，强制展开
-        const sidebarContent = sidebar.querySelector('.st-emotion-cache-6qob1r');
-        if (sidebarContent) {
-            sidebarContent.style.transform = 'translateX(0)';
-        }
-    }
-});
-
-// 监控侧边栏状态
-setInterval(() => {
-    const sidebar = document.querySelector('[data-testid="stSidebar"]');
-    if (sidebar && sidebar.style.display === 'none') {
-        sidebar.style.display = 'block';
-    }
-}, 1000);
-</script>
-""", unsafe_allow_html=True)
-
-# 隐藏streamlit默认样式
-hide_streamlit_style = """
 <style>
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-header {visibility: hidden;}
-.stDeployButton {display: none;}
-.viewerBadge_container__1QSob {display: none;}
-
-/* 响应式侧边栏优化 */
-@media (max-width: 768px) {
+    /* 强制侧边栏始终可见 */
     section[data-testid="stSidebar"] {
-        min-width: 200px;
-        max-width: 85vw;
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        transform: translateX(0) !important;
+        min-width: 300px !important;
     }
+
+    /* 侧边栏内容区域 */
     .st-emotion-cache-6qob1r {
-        padding: 1rem 0.5rem;
+        transform: translateX(0) !important;
     }
-    /* 手机端压缩一些间距 */
-    .main-header {
-        padding: 15px;
-        margin-bottom: 10px;
-    }
-    .metric-card {
-        padding: 15px;
-        margin-bottom: 10px;
-    }
-}
 
-@media (min-width: 769px) {
-    section[data-testid="stSidebar"] {
-        min-width: 280px;
+    /* 顶部控制栏 - 始终可见 */
+    .top-control-bar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        z-index: 9999;
+        background: linear-gradient(90deg, rgba(26, 35, 126, 0.9) 0%, rgba(57, 73, 171, 0.9) 100%);
+        padding: 8px 15px;
+        border-radius: 0 0 0 10px;
+        display: flex;
+        gap: 10px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.2);
     }
-}
-</style>
-"""
-st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
-# 工业自动化主题样式
-st.markdown("""
-<style>
+    .control-btn {
+        background: white;
+        color: #1a237e;
+        border: none;
+        border-radius: 5px;
+        padding: 5px 12px;
+        font-size: 12px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.3s;
+    }
+
+    .control-btn:hover {
+        background: #f5f5f5;
+        transform: translateY(-1px);
+    }
+
+    /* 主页面内容偏移，防止被控制栏遮挡 */
+    .main-content {
+        margin-top: 50px;
+    }
+
+    /* 主标题样式 */
     .main-header {
         background: linear-gradient(90deg, #1a237e 0%, #283593 100%);
         color: white;
-        padding: 25px;
+        padding: 20px;
         border-radius: 10px;
         margin-bottom: 20px;
         box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -106,11 +91,11 @@ st.markdown("""
 
     .metric-card {
         background: white;
-        padding: 20px;
-        border-radius: 10px;
+        padding: 15px;
+        border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.08);
         border-top: 4px solid;
-        margin-bottom: 15px;
+        margin-bottom: 10px;
     }
 
     .metric-sales { border-top-color: #1a237e; }
@@ -128,10 +113,131 @@ st.markdown("""
     .positive { color: #4caf50; font-weight: bold; }
     .negative { color: #f44336; font-weight: bold; }
     .warning { color: #ff9800; font-weight: bold; }
+
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+        .top-control-bar {
+            left: 0;
+            right: 0;
+            border-radius: 0;
+            justify-content: center;
+        }
+        .main-content {
+            margin-top: 60px;
+        }
+    }
+</style>
+
+<!-- 顶部控制栏 - 始终可见 -->
+<div class="top-control-bar">
+    <button class="control-btn" onclick="toggleSidebar()">
+        <span>☰</span> 控制面板
+    </button>
+    <button class="control-btn" onclick="location.reload()">
+        🔄 刷新页面
+    </button>
+    <button class="control-btn" onclick="showHelp()">
+        ❓ 帮助
+    </button>
+</div>
+
+<!-- JavaScript解决方案 -->
+<script>
+// 1. 强制侧边栏可见
+function ensureSidebarVisible() {
+    const sidebar = document.querySelector('[data-testid="stSidebar"]');
+    if (sidebar) {
+        // 强制设置为可见状态
+        sidebar.style.display = 'block';
+        sidebar.style.visibility = 'visible';
+        sidebar.style.opacity = '1';
+        sidebar.style.transform = 'translateX(0)';
+        sidebar.style.minWidth = '300px';
+        sidebar.style.width = '300px';
+
+        // 确保内容区域也可见
+        const sidebarContent = sidebar.querySelector('.st-emotion-cache-6qob1r');
+        if (sidebarContent) {
+            sidebarContent.style.transform = 'translateX(0)';
+            sidebarContent.style.visibility = 'visible';
+        }
+    }
+}
+
+// 2. 切换侧边栏显示/隐藏
+function toggleSidebar() {
+    const sidebar = document.querySelector('[data-testid="stSidebar"]');
+    if (sidebar) {
+        if (sidebar.style.transform === 'translateX(-300px)' || 
+            getComputedStyle(sidebar).transform === 'matrix(1, 0, 0, 1, -300, 0)') {
+            // 如果被隐藏了，显示它
+            sidebar.style.transform = 'translateX(0)';
+            sidebar.style.visibility = 'visible';
+        } else {
+            // 如果是显示的，暂时隐藏
+            sidebar.style.transform = 'translateX(-300px)';
+            // 3秒后自动显示，确保不会永久隐藏
+            setTimeout(ensureSidebarVisible, 3000);
+        }
+    }
+}
+
+// 3. 帮助提示
+function showHelp() {
+    alert("💡 使用帮助：\\n1. 点击'控制面板'按钮显示/隐藏侧边栏\\n2. 侧边栏会自动保存您的筛选设置\\n3. 使用'刷新页面'按钮获取最新数据");
+}
+
+// 4. 页面加载时立即执行
+document.addEventListener('DOMContentLoaded', function() {
+    // 立即确保侧边栏可见
+    ensureSidebarVisible();
+
+    // 每隔2秒检查一次侧边栏状态
+    setInterval(ensureSidebarVisible, 2000);
+
+    // 监听Streamlit的Rerun事件
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                ensureSidebarVisible();
+            }
+        });
+    });
+
+    // 观察整个body的变化
+    observer.observe(document.body, { childList: true, subtree: true });
+});
+
+// 5. 键盘快捷键
+document.addEventListener('keydown', function(e) {
+    // Ctrl + B 切换侧边栏
+    if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+        e.preventDefault();
+        toggleSidebar();
+    }
+    // ESC 确保侧边栏可见
+    if (e.key === 'Escape') {
+        ensureSidebarVisible();
+    }
+});
+</script>
+
+<div class="main-content">
+""", unsafe_allow_html=True)
+
+# ========== 3. 隐藏streamlit默认样式 ==========
+st.markdown("""
+<style>
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+.stDeployButton {display: none;}
+.viewerBadge_container__1QSob {display: none;}
 </style>
 """, unsafe_allow_html=True)
 
-# 生成拓威斯自动化行业模拟数据
+
+# ========== 4. 数据生成函数 ==========
 def generate_tuoweisi_data():
     """生成自动化设备制造商模拟数据"""
     np.random.seed(2026)
@@ -215,7 +321,7 @@ def generate_tuoweisi_data():
     monthly_sales = []
 
     for month in months:
-        for region in regions[:4]:  # 主要区域
+        for region in regions[:4]:
             for product_line in product_lines:
                 monthly_value = np.random.uniform(100000, 500000)
 
@@ -261,7 +367,7 @@ def generate_tuoweisi_data():
     }
 
 
-# 加载数据
+# ========== 5. 加载数据 ==========
 data = generate_tuoweisi_data()
 df_opps = data['df_opps']
 df_monthly = data['df_monthly']
@@ -292,53 +398,82 @@ else:
 # 售后服务评分
 avg_service_rating = df_service['customer_rating'].mean()
 
-# 主页面
-st.markdown("""
-<div class="main-header">
-    <h1>⚙️ 拓威斯自动化 - 智能管理驾驶舱</h1>
-    <p>专注自动螺丝机、冲针机、非标自动化设备的销售与项目管理</p>
-</div>
-""", unsafe_allow_html=True)
-
-# 侧边栏控制面板
+# ========== 6. 侧边栏控制面板 ==========
 with st.sidebar:
-    # 确保有内容
-    st.write(" ")  # 空内容确保渲染
+    # 添加侧边栏标题和关闭按钮
+    col_title, col_close = st.columns([4, 1])
+    with col_title:
+        st.markdown("### 🎛️ 控制面板")
+    with col_close:
+        if st.button("✕", help="关闭侧边栏", key="close_sidebar"):
+            st.markdown("""
+            <script>
+            document.querySelector('[data-testid="stSidebar"]').style.transform = 'translateX(-300px)';
+            setTimeout(() => {
+                document.querySelector('[data-testid="stSidebar"]').style.transform = 'translateX(0)';
+            }, 3000);
+            </script>
+            """, unsafe_allow_html=True)
 
-    st.markdown("### 🎛️ 控制面板")
+    st.markdown("---")
 
     # 区域筛选
     regions_selected = st.multiselect(
         "选择办事处",
         data['regions'],
-        default=data['regions'][:4]
+        default=data['regions'][:4],
+        key="region_filter"
     )
 
     # 产品线筛选
     products_selected = st.multiselect(
         "选择产品线",
         data['product_lines'],
-        default=data['product_lines']
+        default=data['product_lines'],
+        key="product_filter"
     )
 
     # 项目状态筛选
     status_selected = st.multiselect(
         "选择项目状态",
         data['project_statuses'],
-        default=data['project_statuses']
+        default=data['project_statuses'],
+        key="status_filter"
     )
 
-    st.divider()
+    st.markdown("---")
 
     # 时间范围
     time_range = st.selectbox(
         "时间范围",
         ["本月", "本季度", "本年度", "最近12个月"],
-        index=2
+        index=2,
+        key="time_filter"
     )
 
-    if st.button("🔄 刷新数据"):
+    st.markdown("---")
+
+    # 刷新按钮
+    if st.button("🔄 刷新数据", use_container_width=True, key="refresh_data"):
         st.rerun()
+
+    # 侧边栏使用提示
+    with st.expander("💡 使用提示"):
+        st.markdown("""
+        1. 筛选条件会自动保存
+        2. 右上角有控制面板按钮
+        3. 可按 **Ctrl+B** 切换侧边栏
+        4. 侧边栏会自动保持可见
+        """)
+
+# ========== 7. 主页面内容 ==========
+# 主标题
+st.markdown("""
+<div class="main-header">
+    <h1>⚙️ 拓威斯自动化 - 智能管理驾驶舱</h1>
+    <p>专注自动螺丝机、冲针机、非标自动化设备的销售与项目管理</p>
+</div>
+""", unsafe_allow_html=True)
 
 # 第一行：核心运营指标
 st.markdown("### 📈 核心运营指标")
@@ -350,9 +485,7 @@ with col1:
     <div class="metric-card metric-sales">
         <div style="font-size: 14px; color: #666; margin-bottom: 5px;">年度销售额</div>
         <div style="font-size: 28px; font-weight: bold; color: #1a237e;">¥{total_annual_sales:,.0f}</div>
-        <div style="font-size: 12px; margin-top: 5px;">
-            项目数: {total_projects:,}
-        </div>
+        <div style="font-size: 12px; margin-top: 5px;">项目数: {total_projects:,}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -361,9 +494,7 @@ with col2:
     <div class="metric-card metric-projects">
         <div style="font-size: 14px; color: #666; margin-bottom: 5px;">在执项目</div>
         <div style="font-size: 28px; font-weight: bold; color: #3949ab;">{len(active_projects)}</div>
-        <div style="font-size: 12px; margin-top: 5px;">
-            合同额: ¥{active_projects_value:,.0f}
-        </div>
+        <div style="font-size: 12px; margin-top: 5px;">合同额: ¥{active_projects_value:,.0f}</div>
     </div>
     """, unsafe_allow_html=True)
 
@@ -372,15 +503,12 @@ with col3:
     <div class="metric-card metric-regions">
         <div style="font-size: 14px; color: #666; margin-bottom: 5px;">平均交付周期</div>
         <div style="font-size: 28px; font-weight: bold; color: #5c6bc0;">{avg_delivery_days:.0f}天</div>
-        <div style="font-size: 12px; margin-top: 5px;">
-            当前进行中: {len(df_opps[df_opps['status'] == '生产制造'])}个
-        </div>
+        <div style="font-size: 12px; margin-top: 5px;">当前进行中: {len(df_opps[df_opps['status'] == '生产制造'])}个</div>
     </div>
     """, unsafe_allow_html=True)
 
 with col4:
     rating_color = "positive" if avg_service_rating >= 4 else "warning" if avg_service_rating >= 3 else "negative"
-
     st.markdown(f"""
     <div class="metric-card metric-growth">
         <div style="font-size: 14px; color: #666; margin-bottom: 5px;">服务满意度</div>
@@ -398,8 +526,6 @@ col1, col2 = st.columns([3, 2])
 
 with col1:
     st.markdown("### 📊 销售漏斗分析")
-
-    # 按状态统计
     status_dist = df_opps['status'].value_counts().reindex(data['project_statuses']).fillna(0)
 
     fig_funnel = go.Figure(go.Funnel(
@@ -421,8 +547,6 @@ with col1:
 
 with col2:
     st.markdown("### 🗺️ 区域业绩分布")
-
-    # 按区域销售额
     region_sales = df_monthly.groupby('region')['sales_amount'].sum().reset_index()
 
     fig_region = px.pie(
@@ -455,8 +579,6 @@ col1, col2 = st.columns(2)
 
 with col1:
     st.markdown("### 📋 重点项目监控")
-
-    # 筛选高价值项目
     high_value_projects = df_opps[df_opps['contract_value'] > 300000].sort_values('contract_value', ascending=False)
 
     if not high_value_projects.empty:
@@ -464,21 +586,16 @@ with col1:
             status_class = f"status-{project['status'].replace(' ', '').lower()}"
 
             with st.container(border=True):
-                # 项目标题
                 title_cols = st.columns([3, 1])
                 with title_cols[0]:
                     st.write(f"**{project['opp_id']} - {project['customer_name']}**")
                 with title_cols[1]:
                     st.markdown(f'<span class="{status_class}">{project["status"]}</span>', unsafe_allow_html=True)
 
-                # 项目信息
                 st.caption(f"{project['industry']} · {project['product_model']} · {project['region']}")
-
-                # 进度条
                 st.progress(project['progress'] / 100)
                 st.caption(f"进度: {project['progress']:.0f}%")
 
-                # 底部指标
                 metric_cols = st.columns(3)
                 with metric_cols[0]:
                     st.metric("合同额", f"¥{project['contract_value']:,.0f}")
@@ -490,9 +607,7 @@ with col1:
     else:
         st.info("暂无高价值项目")
 
-    # 产品线分析
     st.markdown("##### ⚙️ 产品线销售分布")
-
     product_sales = df_monthly.groupby('product_line')['sales_amount'].sum().reset_index()
 
     fig_product = px.bar(
@@ -516,8 +631,6 @@ with col1:
 
 with col2:
     st.markdown("### 🔧 售后服务看板")
-
-    # 服务类型分布
     service_dist = df_service['service_type'].value_counts().reset_index()
     service_dist.columns = ['service_type', 'count']
 
@@ -539,9 +652,7 @@ with col2:
 
     st.plotly_chart(fig_service, use_container_width=True)
 
-    # 待处理服务
     st.markdown("##### ⏳ 待处理服务单")
-
     pending_service = df_service[df_service['status'] == '待处理']
 
     if not pending_service.empty:
@@ -560,8 +671,6 @@ st.divider()
 
 # 第四行：月度趋势和业务洞察
 st.markdown("### 📈 月度销售趋势")
-
-# 按月汇总销售额
 monthly_trend = df_monthly.groupby('month')['sales_amount'].sum().reset_index()
 
 fig_trend = go.Figure()
@@ -608,25 +717,11 @@ for idx, insight in enumerate(insights):
 st.divider()
 st.markdown(f"""
 <div style="text-align: center; color: #64748b; font-size: 12px; padding: 20px;">
-    <p>⚙️ 拓威斯自动化BI看板系统 | 数据更新时间: {datetime.now().strftime("%Y-%m-%d %H:%M")}</p>
+    <p>⚙️ 拓威斯自动化BI看板系统 | 数据更新时间: {datetime.now().strftime('%Y-%m-%d %H:%M')}</p>
     <p>💡 本系统支持对接CRM、项目管理系统、售后服务系统 | 全国9大办事处数据实时同步</p>
+    <p>📱 侧边栏控制：右上角按钮或按 <strong>Ctrl+B</strong></p>
 </div>
 """, unsafe_allow_html=True)
 
-st.markdown("""
-
-<style>
-
-.block-container {
-
-max-width: 1400px; /* 限制整体内容的最大宽度 */
-
-padding-left: 1rem;
-
-padding-right: 1rem;
-
-}
-
-</style>
-
-""", unsafe_allow_html=True)
+# 关闭main-content div
+st.markdown("</div>", unsafe_allow_html=True)
