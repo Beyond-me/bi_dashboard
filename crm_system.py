@@ -561,7 +561,7 @@ def show_login_page():
 
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            submit = st.form_submit_button("登录", type="primary", use_container_width=True)
+            submit = st.form_submit_button("登录", type="primary", width='stretch')
 
         if submit:
             user = login(username, password)
@@ -629,13 +629,13 @@ def show_sidebar():
         st.markdown("### ⚡ 快速操作")
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("➕ 新增客户", use_container_width=True):
+            if st.button("➕ 新增客户", width='stretch'):
                 st.session_state.page = "clients"
                 st.session_state.subpage = "add"
                 st.rerun()
 
         with col2:
-            if st.button("🎯 新增商机", use_container_width=True):
+            if st.button("🎯 新增商机", width='stretch'):
                 st.session_state.page = "opportunities"
                 st.session_state.subpage = "add"
                 st.rerun()
@@ -643,7 +643,7 @@ def show_sidebar():
         st.divider()
 
         # 登出按钮
-        if st.button("🚪 退出登录", use_container_width=True):
+        if st.button("🚪 退出登录", width='stretch'):
             st.session_state.user = None
             st.rerun()
 
@@ -773,7 +773,7 @@ def show_dashboard():
                 hole=0.4
             )
             fig.update_layout(height=300)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
         else:
             st.info("暂无客户数据")
 
@@ -789,7 +789,7 @@ def show_dashboard():
                 textinfo="value+percent initial"
             ))
             fig.update_layout(height=300)
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
         else:
             st.info("暂无销售机会数据")
 
@@ -938,7 +938,7 @@ def show_client_list():
                 "assigned_name": "负责人",
                 "last_contact": "最后联系"
             },
-            use_container_width=True
+            width='stretch'
         )
 
         # 客户详情
@@ -1062,7 +1062,7 @@ def show_client_analysis():
                 names=industry_dist.index,
                 hole=0.3
             )
-            st.plotly_chart(fig1, use_container_width=True)
+            st.plotly_chart(fig1, width='stretch')
 
         with col2:
             # 客户地区分布
@@ -1073,7 +1073,7 @@ def show_client_analysis():
                 y=region_dist.index,
                 orientation='h'
             )
-            st.plotly_chart(fig2, use_container_width=True)
+            st.plotly_chart(fig2, width='stretch')
 
         # 客户状态趋势
         st.markdown("##### 📈 客户状态趋势")
@@ -1096,7 +1096,7 @@ def show_client_analysis():
             ))
 
         fig3.update_layout(height=400)
-        st.plotly_chart(fig3, use_container_width=True)
+        st.plotly_chart(fig3, width='stretch')
     else:
         st.info("暂无客户数据进行分析")
 
@@ -1317,7 +1317,7 @@ def show_funnel_analysis():
                 title="销售金额漏斗",
                 height=400
             )
-            st.plotly_chart(fig1, use_container_width=True)
+            st.plotly_chart(fig1, width='stretch')
 
         with col2:
             # 阶段金额分布
@@ -1328,7 +1328,7 @@ def show_funnel_analysis():
                 title="各阶段预估金额"
             )
             fig2.update_layout(height=400)
-            st.plotly_chart(fig2, use_container_width=True)
+            st.plotly_chart(fig2, width='stretch')
 
         # 预计收入分析
         df_opps['expected_value'] = df_opps['estimated_value'] * df_opps['probability'] / 100
@@ -1351,7 +1351,7 @@ def show_funnel_analysis():
             barmode='group',
             height=400
         )
-        st.plotly_chart(fig3, use_container_width=True)
+        st.plotly_chart(fig3, width='stretch')
     else:
         st.info("暂无销售机会数据")
 
@@ -1708,7 +1708,7 @@ def show_task_stats():
                 names=status_dist.index,
                 hole=0.3
             )
-            st.plotly_chart(fig1, use_container_width=True)
+            st.plotly_chart(fig1, width='stretch')
 
         with col2:
             # 任务优先级分布
@@ -1718,7 +1718,7 @@ def show_task_stats():
                 x=priority_dist.index,
                 y=priority_dist.values
             )
-            st.plotly_chart(fig2, use_container_width=True)
+            st.plotly_chart(fig2, width='stretch')
 
         # 月度任务趋势
         st.markdown("##### 📅 月度任务趋势")
@@ -1735,7 +1735,7 @@ def show_task_stats():
             ))
 
         fig3.update_layout(height=400)
-        st.plotly_chart(fig3, use_container_width=True)
+        st.plotly_chart(fig3, width='stretch')
     else:
         st.info("暂无任务数据")
 
@@ -1823,7 +1823,7 @@ def show_sales_analytics():
                     labels={'x': '阶段', 'y': '预估金额'},
                     title="各阶段预估金额"
                 )
-                st.plotly_chart(fig1, use_container_width=True)
+                st.plotly_chart(fig1, width='stretch')
 
             with col2:
                 fig2 = px.pie(
@@ -1831,7 +1831,7 @@ def show_sales_analytics():
                     names=stage_analysis.index,
                     title="机会数量分布"
                 )
-                st.plotly_chart(fig2, use_container_width=True)
+                st.plotly_chart(fig2, width='stretch')
 
             # 月度趋势
             st.markdown("##### 📅 月度趋势")
@@ -1856,13 +1856,13 @@ def show_sales_analytics():
             ))
 
             fig3.update_layout(height=400)
-            st.plotly_chart(fig3, use_container_width=True)
+            st.plotly_chart(fig3, width='stretch')
 
             # 详细数据
             with st.expander("查看详细数据"):
                 st.dataframe(df_opps[['opp_code', 'company_name', 'name', 'stage', 'estimated_value',
                                       'probability', 'expected_revenue', 'expected_close']],
-                             use_container_width=True)
+                             width='stretch')
         else:
             st.info("该时间段内无销售机会数据")
 
@@ -1892,7 +1892,7 @@ def show_client_analytics():
                 names=source_dist.index,
                 hole=0.3
             )
-            st.plotly_chart(fig1, use_container_width=True)
+            st.plotly_chart(fig1, width='stretch')
 
         with col2:
             # 客户等级分布
@@ -1903,7 +1903,7 @@ def show_client_analytics():
                 y=level_dist.values,
                 color=level_dist.index
             )
-            st.plotly_chart(fig2, use_container_width=True)
+            st.plotly_chart(fig2, width='stretch')
 
         # 客户状态趋势
         st.markdown("##### 📈 客户状态趋势")
@@ -1926,7 +1926,7 @@ def show_client_analytics():
             ))
 
         fig3.update_layout(height=400)
-        st.plotly_chart(fig3, use_container_width=True)
+        st.plotly_chart(fig3, width='stretch')
 
         # 客户地域分布
         st.markdown("##### 🗺️ 客户地域分布")
@@ -1938,7 +1938,7 @@ def show_client_analytics():
             title='客户地域分布TOP10'
         )
         fig4.update_layout(height=400)
-        st.plotly_chart(fig4, use_container_width=True)
+        st.plotly_chart(fig4, width='stretch')
     else:
         st.info("暂无客户数据")
 
@@ -1995,7 +1995,7 @@ def show_team_analytics():
                 orientation='h',
                 title='客户数量排行TOP10'
             )
-            st.plotly_chart(fig1, use_container_width=True)
+            st.plotly_chart(fig1, width='stretch')
 
         with tab2:
             df_value_rank = df_sales.sort_values('total_value', ascending=False).head(10)
@@ -2006,7 +2006,7 @@ def show_team_analytics():
                 orientation='h',
                 title='预估金额排行TOP10'
             )
-            st.plotly_chart(fig2, use_container_width=True)
+            st.plotly_chart(fig2, width='stretch')
 
         with tab3:
             df_revenue_rank = df_sales.sort_values('expected_revenue', ascending=False).head(10)
@@ -2017,7 +2017,7 @@ def show_team_analytics():
                 orientation='h',
                 title='预计收入排行TOP10'
             )
-            st.plotly_chart(fig3, use_container_width=True)
+            st.plotly_chart(fig3, width='stretch')
 
         # 部门表现对比
         st.markdown("##### 🏢 部门表现对比")
@@ -2038,7 +2038,7 @@ def show_team_analytics():
                 names=dept_stats.index,
                 title='各部门客户数量分布'
             )
-            st.plotly_chart(fig4, use_container_width=True)
+            st.plotly_chart(fig4, width='stretch')
 
         with col2:
             fig5 = px.pie(
@@ -2047,11 +2047,11 @@ def show_team_analytics():
                 names=dept_stats.index,
                 title='各部门预计收入分布'
             )
-            st.plotly_chart(fig5, use_container_width=True)
+            st.plotly_chart(fig5, width='stretch')
 
         # 详细数据
         with st.expander("查看详细数据"):
-            st.dataframe(df_sales, use_container_width=True)
+            st.dataframe(df_sales, width='stretch')
     else:
         st.info("暂无销售团队数据")
 
@@ -2112,7 +2112,7 @@ def show_user_list():
                 "created_at": "创建时间",
                 "is_active": st.column_config.CheckboxColumn("状态", help="是否激活")
             },
-            use_container_width=True
+            width='stretch'
         )
 
         # 用户操作
@@ -2126,7 +2126,7 @@ def show_user_list():
 
             col1, col2 = st.columns(2)
             with col1:
-                if st.button("🔒 重置密码", use_container_width=True):
+                if st.button("🔒 重置密码", width='stretch'):
                     # 重置密码为默认密码
                     default_password = hashlib.sha256('123456'.encode()).hexdigest()
                     cursor = conn.cursor()
@@ -2137,7 +2137,7 @@ def show_user_list():
             with col2:
                 new_status = not bool(user['is_active'])
                 status_text = "激活" if new_status else "停用"
-                if st.button(f"🔄 {status_text}用户", use_container_width=True):
+                if st.button(f"🔄 {status_text}用户", width='stretch'):
                     cursor = conn.cursor()
                     cursor.execute("UPDATE users SET is_active = ? WHERE id = ?", (int(new_status), selected_id))
                     conn.commit()
@@ -2239,7 +2239,7 @@ def show_permission_settings():
         '技术支持': ['❌', '✅', '❌', '✅', '✅', '❌', '❌']
     })
 
-    st.dataframe(permission_matrix.set_index('功能'), use_container_width=True)
+    st.dataframe(permission_matrix.set_index('功能'), width='stretch')
 
 
 # ========== 13. 主程序入口 ==========
@@ -2287,7 +2287,7 @@ def main():
     if st.session_state.user['role'] == '管理员':
         with st.sidebar.expander("📤 数据导出"):
             export_type = st.selectbox("导出类型", ["客户数据", "销售机会", "联系记录", "任务数据"])
-            if st.button("导出数据", use_container_width=True):
+            if st.button("导出数据", width='stretch'):
                 table_map = {
                     "客户数据": "clients",
                     "销售机会": "opportunities",
@@ -2306,7 +2306,7 @@ def main():
                     data=csv,
                     file_name=f"{export_type}_{datetime.now().strftime('%Y%m%d')}.csv",
                     mime="text/csv",
-                    use_container_width=True
+                    width='stretch'
                 )
 
 
