@@ -561,7 +561,7 @@ def show_login_page():
 
         col1, col2, col3 = st.columns([1, 2, 1])
         with col2:
-            submit = st.form_submit_button("登录", type="primary", width='stretch')
+            submit = st.form_submit_button("登录", type="primary")
 
         if submit:
             user = login(username, password)
@@ -2286,34 +2286,54 @@ def main():
     # 显示侧边栏并获取当前页面
     selected_page = show_sidebar()
 
-    # 确保session state与侧边栏选择一致
-    if st.session_state.page != selected_page:
+    # 更新页面状态
+    if selected_page and st.session_state.page != selected_page:
         st.session_state.page = selected_page
         st.session_state.subpage = ""
 
     # 根据选择显示对应页面
+    current_page = st.session_state.page
+    current_subpage = st.session_state.subpage
+
+    # 页面路由映射
     page_map = {
-        "📊 仪表盘": show_dashboard,
-        "👥 客户管理": show_clients,
-        "💼 销售机会": show_opportunities,
-        "📞 联系记录": show_contacts,
-        "📅 任务日程": show_tasks,
-        "📈 业绩分析": show_analytics,
-        "👤 用户管理": show_users
+        "dashboard": show_dashboard,
+        "clients": lambda: show_clients_page(current_subpage),
+        "opportunities": lambda: show_opportunities_page(current_subpage),
+        "contacts": lambda: show_contacts_page(current_subpage),
+        "tasks": lambda: show_tasks_page(current_subpage),
+        "analytics": show_analytics,
+        "users": show_users
     }
 
-    current_page = st.session_state.page
-
     if current_page in page_map:
-        # 根据子页面显示不同内容
-        if current_page == "clients" and st.session_state.subpage == "add":
-            add_client()
-        elif current_page == "opportunities" and st.session_state.subpage == "add":
-            add_opportunity()
-        else:
-            page_map[current_page]()
+        page_map[current_page]()
     else:
-        show_dashboard()  # 默认显示仪表盘
+        show_dashboard()
+
+    # # 根据选择显示对应页面
+    # page_map = {
+    #     "📊 仪表盘": show_dashboard,
+    #     "👥 客户管理": show_clients,
+    #     "💼 销售机会": show_opportunities,
+    #     "📞 联系记录": show_contacts,
+    #     "📅 任务日程": show_tasks,
+    #     "📈 业绩分析": show_analytics,
+    #     "👤 用户管理": show_users
+    # }
+    #
+    # current_page = st.session_state.page
+    #
+    # if current_page in page_map:
+    #     # 根据子页面显示不同内容
+    #     if current_page == "clients" and st.session_state.subpage == "add":
+    #         add_client()
+    #     elif current_page == "opportunities" and st.session_state.subpage == "add":
+    #         add_opportunity()
+    #     else:
+    #         page_map[current_page]()
+    # else:
+    #     show_dashboard()  # 默认显示仪表盘
 
     # 页脚
     st.divider()
@@ -2328,7 +2348,7 @@ def main():
     if st.session_state.user['role'] == '管理员':
         with st.sidebar.expander("📤 数据导出"):
             export_type = st.selectbox("导出类型", ["客户数据", "销售机会", "联系记录", "任务数据"])
-            if st.button("导出数据", width='stretch'):
+            if st.button("导出数据"):
                 table_map = {
                     "客户数据": "clients",
                     "销售机会": "opportunities",
@@ -2346,8 +2366,7 @@ def main():
                     label=f"下载 {export_type} CSV",
                     data=csv,
                     file_name=f"{export_type}_{datetime.now().strftime('%Y%m%d')}.csv",
-                    mime="text/csv",
-                    width='stretch'
+                    mime="text/csv"
                 )
 
 
