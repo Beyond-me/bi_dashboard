@@ -2145,7 +2145,7 @@ def show_user_list():
 
             col1, col2 = st.columns(2)
             with col1:
-                if st.button("🔒 重置密码", width='stretch'):
+                if st.button("🔒 重置密码"):
                     # 重置密码为默认密码
                     default_password = hashlib.sha256('123456'.encode()).hexdigest()
                     cursor = conn.cursor()
@@ -2156,7 +2156,7 @@ def show_user_list():
             with col2:
                 new_status = not bool(user['is_active'])
                 status_text = "激活" if new_status else "停用"
-                if st.button(f"🔄 {status_text}用户", width='stretch'):
+                if st.button(f"🔄 {status_text}用户"):
                     cursor = conn.cursor()
                     cursor.execute("UPDATE users SET is_active = ? WHERE id = ?", (int(new_status), selected_id))
                     conn.commit()
@@ -2355,7 +2355,6 @@ def show_contacts_page(subpage=""):
     with tab2:
         add_contact()
 
-
 def show_tasks_page(subpage=""):
     """显示任务日程页面，支持子页面"""
     st.markdown("""
@@ -2430,36 +2429,13 @@ def main():
     else:
         show_dashboard()
 
-    # # 根据选择显示对应页面
-    # page_map = {
-    #     "📊 仪表盘": show_dashboard,
-    #     "👥 客户管理": show_clients,
-    #     "💼 销售机会": show_opportunities,
-    #     "📞 联系记录": show_contacts,
-    #     "📅 任务日程": show_tasks,
-    #     "📈 业绩分析": show_analytics,
-    #     "👤 用户管理": show_users
-    # }
-    #
-    # current_page = st.session_state.page
-    #
-    # if current_page in page_map:
-    #     # 根据子页面显示不同内容
-    #     if current_page == "clients" and st.session_state.subpage == "add":
-    #         add_client()
-    #     elif current_page == "opportunities" and st.session_state.subpage == "add":
-    #         add_opportunity()
-    #     else:
-    #         page_map[current_page]()
-    # else:
-    #     show_dashboard()  # 默认显示仪表盘
-
     # 页脚
     st.divider()
     st.markdown(f"""
     <div style="text-align: center; color: #64748b; font-size: 12px; padding: 20px;">
         <p>🤝 CRM客户关系管理系统 v1.0 | 当前用户: {st.session_state.user['full_name']} | 角色: {st.session_state.user['role']}</p>
         <p>📅 系统时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} | 如有问题请联系技术支持</p>
+        <p>📞 手机(微信): 15936507515 </p>
     </div>
     """, unsafe_allow_html=True)
 
