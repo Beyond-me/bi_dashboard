@@ -587,7 +587,7 @@ def show_login_page():
         st.write("用户名: sales1")
         st.write("密码: sales123")
         st.write("**客服账户**")
-        st.write("用户名: kefu")
+        st.write("用户名: customer1")
         st.write("密码: 123456")
 
     return False
