@@ -646,13 +646,13 @@ def show_sidebar():
         st.markdown("### ⚡ 快速操作")
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("➕ 新增客户", use_container_width=True, key="add_client_btn"):
+            if st.button("➕ 新增客户", key="add_client_btn"):
                 st.session_state.page = "clients"
                 st.session_state.subpage = "add"
                 st.rerun()
 
         with col2:
-            if st.button("🎯 新增商机", use_container_width=True, key="add_opp_btn"):
+            if st.button("🎯 新增商机", key="add_opp_btn"):
                 st.session_state.page = "opportunities"
                 st.session_state.subpage = "add"
                 st.rerun()
@@ -660,7 +660,7 @@ def show_sidebar():
         st.divider()
 
         # 登出按钮
-        if st.button("🚪 退出登录", use_container_width=True, key="logout_btn"):
+        if st.button("🚪 退出登录", key="logout_btn"):
             st.session_state.user = None
             st.session_state.page = "dashboard"
             st.session_state.subpage = ""
@@ -957,7 +957,7 @@ def show_client_list():
                 "assigned_name": "负责人",
                 "last_contact": "最后联系"
             },
-            width='stretch'
+            use_container_width=True
         )
 
         # 客户详情
@@ -1881,7 +1881,7 @@ def show_sales_analytics():
             with st.expander("查看详细数据"):
                 st.dataframe(df_opps[['opp_code', 'company_name', 'name', 'stage', 'estimated_value',
                                       'probability', 'expected_revenue', 'expected_close']],
-                             width='stretch')
+                             use_container_width=True)
         else:
             st.info("该时间段内无销售机会数据")
 
@@ -2070,7 +2070,7 @@ def show_team_analytics():
 
         # 详细数据
         with st.expander("查看详细数据"):
-            st.dataframe(df_sales, width='stretch')
+            st.dataframe(df_sales, use_container_width=True)
     else:
         st.info("暂无销售团队数据")
 
@@ -2131,7 +2131,7 @@ def show_user_list():
                 "created_at": "创建时间",
                 "is_active": st.column_config.CheckboxColumn("状态", help="是否激活")
             },
-            width='stretch'
+            use_container_width=True
         )
 
         # 用户操作
@@ -2258,7 +2258,7 @@ def show_permission_settings():
         '技术支持': ['❌', '✅', '❌', '✅', '✅', '❌', '❌']
     })
 
-    st.dataframe(permission_matrix.set_index('功能'), width='stretch')
+    st.dataframe(permission_matrix.set_index('功能'), use_container_width=True)
 
 
 def show_clients_page(subpage=""):
