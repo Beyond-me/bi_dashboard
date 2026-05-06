@@ -602,6 +602,7 @@ def show_sidebar():
         </div>
         """, unsafe_allow_html=True)
 
+        # 定义菜单选项
         menu_options = [
             ("📊 仪表盘", "dashboard"),
             ("👥 客户管理", "clients"),
@@ -616,26 +617,42 @@ def show_sidebar():
         if st.session_state.user['role'] != '管理员':
             menu_options = [m for m in menu_options if m[1] != 'users']
 
+        # 创建菜单选择器
+        selected_index = 0
+        for i, (name, _) in enumerate(menu_options):
+            if st.session_state.get('page', 'dashboard') == menu_options[i][1]:
+                selected_index = i
+
         selected = st.selectbox(
             "导航菜单",
             options=[m[0] for m in menu_options],
-            format_func=lambda x: x,
-            label_visibility="collapsed"
+            index=selected_index,
+            label_visibility="collapsed",
+            key="sidebar_menu"  # 添加key
         )
+
+        # 获取对应的页面标识
+        selected_page = dict(menu_options)[selected]
+
+        # 如果菜单选择发生了变化，更新session state
+        if st.session_state.get('page') != selected_page:
+            st.session_state.page = selected_page
+            st.session_state.subpage = ""
+            st.rerun()
 
         st.divider()
 
-        # 快速操作
+        # 快速操作按钮
         st.markdown("### ⚡ 快速操作")
         col1, col2 = st.columns(2)
         with col1:
-            if st.button("➕ 新增客户", width='stretch'):
+            if st.button("➕ 新增客户", use_container_width=True, key="add_client_btn"):
                 st.session_state.page = "clients"
                 st.session_state.subpage = "add"
                 st.rerun()
 
         with col2:
-            if st.button("🎯 新增商机", width='stretch'):
+            if st.button("🎯 新增商机", use_container_width=True, key="add_opp_btn"):
                 st.session_state.page = "opportunities"
                 st.session_state.subpage = "add"
                 st.rerun()
@@ -643,11 +660,13 @@ def show_sidebar():
         st.divider()
 
         # 登出按钮
-        if st.button("🚪 退出登录", width='stretch'):
+        if st.button("🚪 退出登录", use_container_width=True, key="logout_btn"):
             st.session_state.user = None
+            st.session_state.page = "dashboard"
+            st.session_state.subpage = ""
             st.rerun()
 
-        return dict(menu_options)[selected]
+        return selected_page
 
 
 # ========== 6. 仪表盘页面 ==========
@@ -2249,6 +2268,15 @@ def main():
     if not check_auth():
         return
 
+    # 调试信息
+    st.sidebar.markdown(f"""
+    <div style="background: #f0f2f6; padding: 10px; border-radius: 5px; margin: 10px 0;">
+        <small>调试信息</small><br>
+        <small>当前页面: {st.session_state.get('page', 'dashboard')}</small><br>
+        <small>子页面: {st.session_state.get('subpage', '')}</small>
+    </div>
+    """, unsafe_allow_html=True)
+
     # 初始化session state
     if 'page' not in st.session_state:
         st.session_state.page = "dashboard"
@@ -2257,6 +2285,11 @@ def main():
 
     # 显示侧边栏并获取当前页面
     selected_page = show_sidebar()
+
+    # 确保session state与侧边栏选择一致
+    if st.session_state.page != selected_page:
+        st.session_state.page = selected_page
+        st.session_state.subpage = ""
 
     # 根据选择显示对应页面
     page_map = {
