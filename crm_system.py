@@ -2302,8 +2302,16 @@ def main():
         "👤 用户管理": show_users
     }
 
-    if selected_page in page_map:
-        page_map[selected_page]()
+    current_page = st.session_state.page
+
+    if current_page in page_map:
+        # 根据子页面显示不同内容
+        if current_page == "clients" and st.session_state.subpage == "add":
+            add_client()
+        elif current_page == "opportunities" and st.session_state.subpage == "add":
+            add_opportunity()
+        else:
+            page_map[current_page]()
     else:
         show_dashboard()  # 默认显示仪表盘
 
