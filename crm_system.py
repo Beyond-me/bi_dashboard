@@ -2261,6 +2261,125 @@ def show_permission_settings():
     st.dataframe(permission_matrix.set_index('功能'), width='stretch')
 
 
+def show_clients_page(subpage=""):
+    """显示客户管理页面，支持子页面"""
+    st.markdown("""
+    <div class="main-header">
+        <h1>👥 客户管理</h1>
+        <p>管理客户信息，跟进客户状态</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 如果从快速操作按钮进入，显示新增页面
+    if subpage == "add":
+        add_client()
+        return
+
+    # 子页面选择
+    tab_labels = ["客户列表", "新增客户", "客户分析"]
+    tab_selected = 0
+
+    # 根据session state确定选中哪个tab
+    if st.session_state.get('clients_subpage') == "list":
+        tab_selected = 0
+    elif st.session_state.get('clients_subpage') == "add":
+        tab_selected = 1
+    elif st.session_state.get('clients_subpage') == "analysis":
+        tab_selected = 2
+
+    # 使用tabs而不是radio，提供更好的用户体验
+    tab1, tab2, tab3 = st.tabs(tab_labels)
+
+    with tab1:
+        st.session_state.clients_subpage = "list"
+        show_client_list()
+
+    with tab2:
+        st.session_state.clients_subpage = "add"
+        add_client()
+
+    with tab3:
+        st.session_state.clients_subpage = "analysis"
+        show_client_analysis()
+
+
+def show_opportunities_page(subpage=""):
+    """显示销售机会页面，支持子页面"""
+    st.markdown("""
+    <div class="main-header">
+        <h1>💼 销售机会管理</h1>
+        <p>跟踪销售机会，预测销售业绩</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # 如果从快速操作按钮进入，显示新增页面
+    if subpage == "add":
+        add_opportunity()
+        return
+
+    # 子页面选择
+    tab1, tab2, tab3 = st.tabs(["机会列表", "新增机会", "漏斗分析"])
+
+    with tab1:
+        st.session_state.opp_subpage = "list"
+        show_opportunity_list()
+
+    with tab2:
+        st.session_state.opp_subpage = "add"
+        add_opportunity()
+
+    with tab3:
+        st.session_state.opp_subpage = "funnel"
+        show_funnel_analysis()
+
+
+# 同样修改其他页面函数
+def show_contacts_page(subpage=""):
+    """显示联系记录页面，支持子页面"""
+    st.markdown("""
+    <div class="main-header">
+        <h1>📞 联系记录</h1>
+        <p>记录客户沟通，跟踪跟进进度</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if subpage == "add":
+        add_contact()
+        return
+
+    tab1, tab2 = st.tabs(["记录列表", "新增记录"])
+
+    with tab1:
+        show_contact_list()
+
+    with tab2:
+        add_contact()
+
+
+def show_tasks_page(subpage=""):
+    """显示任务日程页面，支持子页面"""
+    st.markdown("""
+    <div class="main-header">
+        <h1>📅 任务日程</h1>
+        <p>管理待办任务，提高工作效率</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    if subpage == "add":
+        add_task()
+        return
+
+    tab1, tab2, tab3 = st.tabs(["我的任务", "新增任务", "任务统计"])
+
+    with tab1:
+        show_my_tasks()
+
+    with tab2:
+        add_task()
+
+    with tab3:
+        show_task_stats()
+
 # ========== 13. 主程序入口 ==========
 def main():
     """主程序入口"""
