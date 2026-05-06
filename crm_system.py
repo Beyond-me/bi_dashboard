@@ -580,12 +580,15 @@ def show_login_page():
 
     # 显示默认账户信息
     with st.expander("测试账户"):
-        st.write("**管理员账户**")
-        st.write("用户名: admin")
-        st.write("密码: admin123")
+        # st.write("**管理员账户**")
+        # st.write("用户名: admin")
+        # st.write("密码: admin123")
         st.write("**销售账户**")
         st.write("用户名: sales1")
         st.write("密码: sales123")
+        st.write("**客服账户**")
+        st.write("用户名: kefu")
+        st.write("密码: 123456")
 
     return False
 
