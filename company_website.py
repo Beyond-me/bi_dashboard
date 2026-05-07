@@ -224,12 +224,13 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 头部区域 (完全修复)
+# 头部区域 (修复后)
 st.markdown("""
 <div class="header">
     <h1 style="font-size: 2.8rem; margin-bottom: 15px;">企业数字化解决方案专家</h1>
     <p style="font-size: 1.2rem; max-width: 800px; margin: 0 auto 30px; opacity: 0.9;">
         提供BI商业智能、CRM客户关系管理、进销存系统等定制开发服务
+    </p>
 
     <div style="margin-top: 20px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
         <div class="btn-primary">免费获取方案咨询</div>
@@ -239,7 +240,6 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
-
 # 为什么选择我们
 st.markdown("""
 ## 为什么选择我们
