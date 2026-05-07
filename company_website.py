@@ -21,34 +21,6 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-st.markdown("""
-<style>
-    /* 设置页脚的背景色 */
-    .footer {
-        background-color: #1a202c; /* 深色背景 */
-        padding: 20px 0;
-        margin-top: 50px; /* 与上方内容区隔开 */
-    }
-
-    /* 可选：优化服务列表的样式 */
-    .service-list {
-        list-style: none;
-        padding: 0;
-        color: #bdc3c7;
-        line-height: 1.8;
-        font-size: 0.9rem;
-    }
-    .service-list li::before {
-        content: "•";
-        color: #48bb78; /* 列表项前的绿色圆点 */
-        font-weight: bold;
-        display: inline-block; 
-        width: 1em;
-        margin-left: -1em;
-    }
-</style>
-""", unsafe_allow_html=True)
-
 # ========== 完整的CSS样式 ==========
 st.markdown("""
 <style>
