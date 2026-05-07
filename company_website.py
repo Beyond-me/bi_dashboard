@@ -470,20 +470,23 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 页脚 (修复后)
-st.markdown("""
+import streamlit as st
+import streamlit.components.v1 as components
+
+# 您的页脚 HTML 代码
+footer_html = """
 <div class="footer">
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto;">
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto; padding: 40px 20px;">
         <div>
-            <h4 style="color: white; margin-bottom: 20px;">数智科技</h4>
-            <p style="color: #bdc3c7; line-height: 1.6;">
+            <h4 style="color: white; margin-bottom: 20px; font-size: 1.1rem;">数智科技</h4>
+            <p style="color: #bdc3c7; line-height: 1.6; font-size: 0.9rem;">
                 专注于企业级数字化解决方案，为企业提供智能化、可视化的管理系统定制开发服务。
             </p>
         </div>
 
         <div>
-            <h4 style="color: white; margin-bottom: 20px;">服务项目</h4>
-            <ul class="service-list">
+            <h4 style="color: white; margin-bottom: 20px; font-size: 1.1rem;">服务项目</h4>
+            <ul style="list-style: none; padding: 0; color: #bdc3c7; line-height: 1.8; font-size: 0.9rem;">
                 <li>BI商业智能系统</li>
                 <li>CRM客户关系管理</li>
                 <li>ERP企业资源计划</li>
@@ -492,25 +495,22 @@ st.markdown("""
         </div>
 
         <div>
-            <h4 style="color: white; margin-bottom: 20px;">联系我们</h4>
-            <ul style="list-style: none; padding: 0; color: #bdc3c7; line-height: 1.8;">
-                <li style="display: flex; align-items: center;">
+            <h4 style="color: white; margin-bottom: 20px; font-size: 1.1rem;">联系我们</h4>
+            <ul style="list-style: none; padding: 0; color: #bdc3c7; line-height: 1.8; font-size: 0.9rem;">
+                <li style="display: flex; align-items: center; margin-bottom: 10px;">
                     <span style="margin-right: 10px;">📧</span> contact@datech.com
                 </li>
-                <li style="display: flex; align-items: center;">
+                <li style="display: flex; align-items: center; margin-bottom: 10px;">
                     <span style="margin-right: 10px;">📞</span> 400-888-8888
                 </li>
-                <li style="display: flex; align-items: center;">
+                <li style="display: flex; align-items: center; margin-bottom: 10px;">
                     <span style="margin-right: 10px;">📍</span> 北京市朝阳区科技园A座12层
-                </li>
-                <li style="display: flex; align-items: center;">
-                    <span style="margin-right: 10px;">⏰</span> 周一至周五 9:00-18:00
                 </li>
             </ul>
         </div>
 
         <div>
-            <h4 style="color: white; margin-bottom: 20px;">关注我们</h4>
+            <h4 style="color: white; margin-bottom: 20px; font-size: 1.1rem;">关注我们</h4>
             <div style="display: flex; gap: 15px;">
                 <div style="width: 40px; height: 40px; background: #1877f2; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer;">微</div>
                 <div style="width: 40px; height: 40px; background: #1da1f2; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; cursor: pointer;">Q</div>
@@ -519,11 +519,14 @@ st.markdown("""
         </div>
     </div>
 
-    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); color: #bdc3c7; font-size: 0.9rem;">
+    <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); color: #bdc3c7; font-size: 0.85rem;">
         © 2026 数智科技有限公司 版权所有 | 京ICP备12345678号
     </div>
 </div>
-""", unsafe_allow_html=True)
+"""
+
+# 使用 st.components.v1.html 来嵌入 HTML
+components.html(footer_html, height=350)
 
 # ========== 侧边栏 ==========
 with st.sidebar:
