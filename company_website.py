@@ -224,22 +224,47 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 头部区域 (修复后)
+# 使用Streamlit原生组件实现头部区域（100%稳定）
 st.markdown("""
-<div class="header">
-    <h1 style="font-size: 2.8rem; margin-bottom: 15px;">企业数字化解决方案专家</h1>
-    <p style="font-size: 1.2rem; max-width: 800px; margin: 0 auto 30px; opacity: 0.9;">
-        提供BI商业智能、CRM客户关系管理、进销存系统等定制开发服务
-    </p>
-
-    <div style="margin-top: 20px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-        <div class="btn-primary">免费获取方案咨询</div>
-        <div style="background: white; color: #2a5298; padding: 12px 25px; border-radius: 30px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: all 0.3s ease;">
-            查看案例
-        </div>
-    </div>
-</div>
+<style>
+.header-section {
+    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+    color: white;
+    padding: 60px 20px;
+    text-align: center;
+    border-radius: 0 0 20px 20px;
+    margin-bottom: 40px;
+}
+</style>
 """, unsafe_allow_html=True)
+
+with st.container():
+    st.markdown('<div class="header-section">', unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns([1, 6, 1])
+    with col2:
+        st.markdown("""
+        <h1 style="font-size: 2.8rem; margin-bottom: 15px; text-align: center; color: white;">
+            企业数字化解决方案专家
+        </h1>
+        """, unsafe_allow_html=True)
+
+        st.markdown("""
+        <p style="font-size: 1.2rem; opacity: 0.9; text-align: center; color: white; margin-bottom: 30px;">
+            提供BI商业智能、CRM客户关系管理、进销存系统等定制开发服务
+        </p>
+        """, unsafe_allow_html=True)
+
+        # 使用Streamlit按钮
+        col_btn1, col_btn2 = st.columns(2)
+        with col_btn1:
+            if st.button("免费获取方案咨询", type="primary", use_container_width=True):
+                st.session_state.show_contact = True
+        with col_btn2:
+            if st.button("查看案例", use_container_width=True):
+                st.session_state.show_projects = True
+
+    st.markdown('</div>', unsafe_allow_html=True)
 
 # 为什么选择我们
 st.markdown("""
