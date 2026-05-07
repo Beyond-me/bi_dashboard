@@ -240,6 +240,7 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
+
 # 为什么选择我们
 st.markdown("""
 ## 为什么选择我们
@@ -469,7 +470,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 页脚 (完全修复)
+# 页脚 (修复后)
 st.markdown("""
 <div class="footer">
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 30px; max-width: 1200px; margin: 0 auto;">
@@ -477,8 +478,9 @@ st.markdown("""
             <h4 style="color: white; margin-bottom: 20px;">数智科技</h4>
             <p style="color: #bdc3c7; line-height: 1.6;">
                 专注于企业级数字化解决方案，为企业提供智能化、可视化的管理系统定制开发服务。
-
+            </p>
         </div>
+
         <div>
             <h4 style="color: white; margin-bottom: 20px;">服务项目</h4>
             <ul class="service-list">
@@ -488,6 +490,7 @@ st.markdown("""
                 <li>定制化开发</li>
             </ul>
         </div>
+
         <div>
             <h4 style="color: white; margin-bottom: 20px;">联系我们</h4>
             <ul style="list-style: none; padding: 0; color: #bdc3c7; line-height: 1.8;">
@@ -505,6 +508,7 @@ st.markdown("""
                 </li>
             </ul>
         </div>
+
         <div>
             <h4 style="color: white; margin-bottom: 20px;">关注我们</h4>
             <div style="display: flex; gap: 15px;">
@@ -514,6 +518,7 @@ st.markdown("""
             </div>
         </div>
     </div>
+
     <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); color: #bdc3c7; font-size: 0.9rem;">
         © 2026 数智科技有限公司 版权所有 | 京ICP备12345678号
     </div>
