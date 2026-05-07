@@ -19,6 +19,34 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
+st.markdown("""
+<style>
+    /* 设置页脚的背景色 */
+    .footer {
+        background-color: #1a202c; /* 深色背景 */
+        padding: 20px 0;
+        margin-top: 50px; /* 与上方内容区隔开 */
+    }
+
+    /* 可选：优化服务列表的样式 */
+    .service-list {
+        list-style: none;
+        padding: 0;
+        color: #bdc3c7;
+        line-height: 1.8;
+        font-size: 0.9rem;
+    }
+    .service-list li::before {
+        content: "•";
+        color: #48bb78; /* 列表项前的绿色圆点 */
+        font-weight: bold;
+        display: inline-block; 
+        width: 1em;
+        margin-left: -1em;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 # ========== 完整的CSS样式 ==========
 st.markdown("""
 <style>
@@ -224,47 +252,28 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# 使用Streamlit原生组件实现头部区域（100%稳定）
-st.markdown("""
-<style>
-.header-section {
-    background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-    color: white;
-    padding: 60px 20px;
-    text-align: center;
-    border-radius: 0 0 20px 20px;
-    margin-bottom: 40px;
-}
-</style>
-""", unsafe_allow_html=True)
+import streamlit as st
+import streamlit.components.v1 as components
 
-with st.container():
-    st.markdown('<div class="header-section">', unsafe_allow_html=True)
+# 您的头部 HTML 代码
+header_html = """
+<div class="header">
+    <h1 style="font-size: 2.8rem; margin-bottom: 15px; color: white;">企业数字化解决方案专家</h1>
+    <p style="font-size: 1.2rem; max-width: 800px; margin: 0 auto 30px; opacity: 0.9; color: #e2e8f0;">
+        提供BI商业智能、CRM客户关系管理、进销存系统等定制开发服务
+    </p>
 
-    col1, col2, col3 = st.columns([1, 6, 1])
-    with col2:
-        st.markdown("""
-        <h1 style="font-size: 2.8rem; margin-bottom: 15px; text-align: center; color: white;">
-            企业数字化解决方案专家
-        </h1>
-        """, unsafe_allow_html=True)
+    <div style="margin-top: 20px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+        <div class="btn-primary">免费获取方案咨询</div>
+        <div style="background: white; color: #2a5298; padding: 12px 25px; border-radius: 30px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: all 0.3s ease;">
+            查看案例
+        </div>
+    </div>
+</div>
+"""
 
-        st.markdown("""
-        <p style="font-size: 1.2rem; opacity: 0.9; text-align: center; color: white; margin-bottom: 30px;">
-            提供BI商业智能、CRM客户关系管理、进销存系统等定制开发服务
-        </p>
-        """, unsafe_allow_html=True)
-
-        # 使用Streamlit按钮
-        col_btn1, col_btn2 = st.columns(2)
-        with col_btn1:
-            if st.button("免费获取方案咨询", type="primary", use_container_width=True):
-                st.session_state.show_contact = True
-        with col_btn2:
-            if st.button("查看案例", use_container_width=True):
-                st.session_state.show_projects = True
-
-    st.markdown('</div>', unsafe_allow_html=True)
+# 使用 st.components.v1.html 来嵌入 HTML
+components.html(header_html, height=300)
 
 # 为什么选择我们
 st.markdown("""
