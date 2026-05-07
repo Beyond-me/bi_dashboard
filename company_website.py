@@ -6,6 +6,8 @@
 # @Desc    : 企业官网推广页面 (100%可用版)
 
 import streamlit as st
+import streamlit.components.v1 as components
+
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -251,9 +253,6 @@ st.markdown("""
     </div>
 </div>
 """, unsafe_allow_html=True)
-
-import streamlit as st
-import streamlit.components.v1 as components
 
 # 您的头部 HTML 代码
 header_html = """
@@ -503,9 +502,6 @@ st.markdown("""
     </form>
 </div>
 """, unsafe_allow_html=True)
-
-import streamlit as st
-import streamlit.components.v1 as components
 
 # 您的页脚 HTML 代码
 footer_html = """
